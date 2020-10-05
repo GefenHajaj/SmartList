@@ -601,3 +601,74 @@ class ShoppingListViews:
                 "wipe_shopping_list(): should be a post request"
             )
 
+
+class ListObjectViews:
+    # POST views
+    @staticmethod
+    @csrf_exempt
+    def change_item_unit(request):
+        """
+        Change an item's units.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                item = get_object_or_404(ListObject, pk=info['pk'])
+                item.units = info['units']
+                item.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "list item {} changed to units {}".format(
+                        item.pk,
+                        item.units
+                    )
+                }))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "change_item_unit(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def change_item_amount(request):
+        """
+        Change an item's amount.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                item = get_object_or_404(ListObject, pk=info['pk'])
+                item.amount = info['amount']
+                item.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "list item {} changed to amount {}".format(
+                        item.pk,
+                        item.amount
+                    )
+                }))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "change_item_unit(): should be a post request"
+            )
+

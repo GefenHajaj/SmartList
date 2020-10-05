@@ -85,4 +85,16 @@ urlpatterns = [
         views.ShoppingListViews.wipe_shopping_list,
         name="wipe_shopping_list"
     ),
+
+    path(
+        'item/changeunit/',
+        views.ListObjectViews.change_item_unit,
+        name="change_item_unit"
+    ),
+
+    path(
+        'item/changeamount/',
+        views.ListObjectViews.change_item_amount,
+        name="change_item_amount"
+    ),
 ]
