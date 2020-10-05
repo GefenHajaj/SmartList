@@ -10,6 +10,8 @@ from .models import *
 import os
 import hashlib
 import traceback
+import decimal
+import random
 
 
 class UserViews:
@@ -81,7 +83,7 @@ class UserViews:
                 ))
         else:
             return HttpResponseBadRequest(
-                "get_all_lists(): should be a get request"
+                "get_user_all_lists(): should be a get request"
             )
 
     # POST views
@@ -165,7 +167,7 @@ class UserViews:
             try:
                 info = json.loads(request.body)
                 user = get_object_or_404(User, pk=info['user_pk'])
-                shopping_list = get_object_or_404(User,
+                shopping_list = get_object_or_404(ShoppingList,
                                                   pk=info['list_pk'],
                                                   name=info['list_name'],
                                                   unique_id=info['list_unique_id'])
@@ -225,5 +227,377 @@ class UserViews:
         else:
             return HttpResponseBadRequest(
                 "exit_list(): should be a post request"
+            )
+
+
+class ShoppingListViews:
+    # GET views
+    @staticmethod
+    @csrf_exempt
+    def get_all_objects(request):
+        """
+        Get all the objects in the list.
+        :param request:delete_shopping_list django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'GET':
+            try:
+                list_pk = request.GET['pk']
+                shopping_list = get_object_or_404(ShoppingList, pk=list_pk)
+                all_objects = shopping_list.listobject_set.all()
+                objects_info = {}
+                for obj in all_objects:
+                    objects_info[obj.pk] = {
+                        "name": obj.product.name,
+                        "units": obj.units,
+                        "amount": float(obj.amount),
+                        "user_added_name": obj.user_added.name,
+                        "user_added_pk": obj.user_added.pk,
+                        "is_bought": obj.is_bought
+                    }
+                return HttpResponse(json.dumps(objects_info,
+                                               ensure_ascii=False))
+
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "get_all_objects(): should be a get request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def get_list_info(request):
+        """
+        Get all info about a specific list.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'GET':
+            try:
+                list_pk = request.GET['pk']
+                shopping_list = get_object_or_404(ShoppingList, pk=list_pk)
+
+                shopping_list_info = {
+                    "pk": shopping_list.pk,
+                    "name": shopping_list.name,
+                    "owner_name": shopping_list.owner.name,
+                    "owner_pk": shopping_list.owner.pk,
+                    "unique_id": shopping_list.unique_id,
+                    "creation_time": str(shopping_list.creation_time),
+                    "last_changed": str(shopping_list.last_changed)
+                }
+
+                return HttpResponse(json.dumps(shopping_list_info,
+                                               ensure_ascii=False))
+
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "get_list_info(): should be a get request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def get_all_list_members(request):
+        return HttpResponseServerError(json.dumps(
+            {"error": "this function is not yet ready"}
+        ))
+
+
+    # POST views
+    @staticmethod
+    @csrf_exempt
+    def add_item_to_list(request):
+        """
+        Add item to a list.
+        This function also creates the item.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+
+                # Check that product exists - if not, create it
+                product_name = info['product_name']
+                if not product_name:
+                    raise KeyError
+                elif not Product.objects.filter(name=product_name).count():
+                    product = Product(name=product_name)
+                    product.save()
+                else:
+                    product = Product.objects.get(name=product_name)
+
+                # Get the user who added the object
+                user = get_object_or_404(User, pk=info['user_pk'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Create the new item we'll add to the list
+                list_item = ListObject(
+                    product=product,
+                    units=info['units'],
+                    amount=decimal.Decimal(info['amount']),
+                    user_added=user,
+                    shopping_list=shopping_list
+                )
+                list_item.save()
+                return HttpResponse(json.dumps({
+                    "success": "Item {} ({}) Added to list {}".format(
+                        product.name,
+                        list_item.pk,
+                        shopping_list.pk
+                    )
+                }, ensure_ascii=False))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "add_item_to_list(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def remove_item_from_list(request):
+        """
+        Remove item from a list (delete it!)
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                item = get_object_or_404(ListObject, pk=info['pk'])
+                item.delete()
+                return HttpResponse(json.dumps({
+                    "success": "item {} ({}) removed from list {}".format(
+                        item.product.name,
+                        info['pk'],
+                        item.shopping_list.pk
+                    )
+                }, ensure_ascii=False))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "remove_item_from_list(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def mark_item_as_bought(request):
+        """
+        Mark an item as bought.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                item = get_object_or_404(ListObject, pk=info['pk'])
+                item.is_bought = True
+                item.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "item {} ({}) was bought".format(
+                        item.product.name,
+                        item.pk
+                    )
+                }, ensure_ascii=False))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "mark_item_as_bought(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def mark_item_as_unbought(request):
+        """
+        Mark an item as bought.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                item = get_object_or_404(ListObject, pk=info['pk'])
+                item.is_bought = False
+                item.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "item {} ({}) was UNbought".format(
+                        item.product.name,
+                        item.pk
+                    )
+                }, ensure_ascii=False))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e,
+                                                                     traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "mark_item_as_bought(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def delete_shopping_list(request):
+        """
+        Delete a shopping list
+        :param request:
+        :return:
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                shopping_list = get_object_or_404(ShoppingList, pk=info['pk'])
+
+                # Delete all the items in the list
+                for item in shopping_list.listobject_set.all():
+                    item.delete()
+
+                # Delete the list
+                shopping_list.delete()
+
+                return HttpResponse(json.dumps({
+                    "success": "list {} deleted successfully".format(
+                        info['pk']
+                    )
+                }))
+
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "wipe_list(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def create_shopping_list(request):
+        """
+        Create a new empty shopping list
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                created_user = get_object_or_404(User, pk=info['user_pk'])
+
+                # Generate an 8-digit random unique id
+                unique_id = str(random.randint(10000000, 100000000))
+                while ShoppingList.objects.filter(unique_id=unique_id).count():
+                    unique_id = str(random.randint(10000000, 100000000))
+
+                if not info['name']:
+                    return HttpResponseBadRequest(json.dumps({
+                        "error": "list name can't be empty"
+                    }))
+                new_list = ShoppingList(
+                    name=info['name'],
+                    owner=created_user,
+                    unique_id=unique_id,
+                )
+                new_list.save()
+                return HttpResponse(json.dumps({
+                    "success": "Shpping List {} ({}) created successfully".
+                        format(new_list.name, new_list.pk)
+                }, ensure_ascii=False))
+
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "create_list(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def wipe_shopping_list(request):
+        """
+        Delete all items in a list.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                shopping_list = get_object_or_404(ShoppingList, pk=info['pk'])
+
+                # Delete all the items in the list
+                for item in shopping_list.listobject_set.all():
+                    item.delete()
+                shopping_list.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "removed all items from shopping list {}".format(
+                        shopping_list.pk
+                    )
+                }))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "wipe_shopping_list(): should be a post request"
             )
 
