@@ -9,21 +9,31 @@ class User(models.Model):
     creation_time = models.DateTimeField(auto_now_add=True)
     last_connected = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return "User: {} ({})".format(self.name, self.pk)
+
 
 class ShoppingList(models.Model):
     name = models.CharField(max_length=50)
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='list_owner'
+        related_name='owned_lists'
     )
     editors = models.ManyToManyField(User)
+    unique_id = models.CharField(max_length=10)
     creation_time = models.DateTimeField(auto_now_add=True)
     last_changed = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return "Shopping List: {} ({})".format(self.name, self.pk)
 
 
 class Product(models.Model):
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "Product: {} ({})".format(self.name, self.pk)
 
 
 class ListObject(models.Model):
@@ -45,4 +55,6 @@ class ListObject(models.Model):
     is_bought = models.BooleanField(default=False)
     shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "List Object: {} ({})".format(self.product.name, self.pk)
 
