@@ -67,7 +67,12 @@ class UserViews:
                 user_lists = user_lists.order_by('creation_time')
                 user_lists_info = {}
                 for shopping_list in user_lists:
-                    user_lists_info[shopping_list.pk] = shopping_list.name
+                    user_lists_info[shopping_list.pk] = {
+                        "name": shopping_list.name,
+                        "unique_id": shopping_list.unique_id,
+                        "owner_pk": shopping_list.owner.pk,
+                        "owner_name": shopping_list.owner.name
+                    }
                 return HttpResponse(json.dumps(user_lists_info,
                                                ensure_ascii=False))
 
@@ -80,9 +85,9 @@ class UserViews:
                     {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
                 ))
         else:
-            return HttpResponseBadRequest(
-                "get_user_all_lists(): should be a get request"
-            )
+            return HttpResponseBadRequest(json.dumps({
+              "error": "get_user_all_lists(): should be a get request"
+            }))
 
     # POST views
     @staticmethod
@@ -120,9 +125,9 @@ class UserViews:
                                                                      traceback.format_exc())}
                 ))
         else:
-            return HttpResponseBadRequest(
-                "create_user(): should be a post request"
-            )
+            return HttpResponseBadRequest(json.dumps(
+                {"error": "create_user(): should be a post request"}
+            ))
 
     @staticmethod
     @csrf_exempt
@@ -233,6 +238,7 @@ class ShoppingListViews:
                 for obj in all_objects:
                     objects_info[obj.pk] = {
                         "name": obj.product.name,
+                        "product_pk": obj.product.pk,
                         "units": obj.units,
                         "amount": float(obj.amount),
                         "user_added_name": obj.user_added.name,
