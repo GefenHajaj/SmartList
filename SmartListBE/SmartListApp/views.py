@@ -31,8 +31,6 @@ class UserViews:
                 return HttpResponse(json.dumps({
                     "pk": user.pk,
                     "name": user.name,
-                    "email": user.email,
-                    "phone_number": user.phone_number,
                     "creation_time": str(user.creation_time),
                     "last_connected": str(user.last_connected)
                 }, ensure_ascii=False))
@@ -102,23 +100,9 @@ class UserViews:
             try:
                 user_info = json.loads(request.body)
 
-                # Check if mail already taken
-                if User.objects.filter(email=user_info['email']).count():
-                    return HttpResponseBadRequest(json.dumps(
-                        {"error": "email taken"}
-                    ))
-                # Check if phone already taken
-                if User.objects.filter(phone_number=user_info['phone_number']).count():
-                    return HttpResponseBadRequest(json.dumps(
-                        {"error": "phone_number taken"}
-                    ))
-
                 # Create the new user:
                 new_user = User(
                     name=user_info['name'],
-                    password=hashlib.sha1(user_info['password'].encode()).hexdigest(),
-                    email=user_info['email'],
-                    phone_number=user_info['phone_number'],
                 )
                 new_user.save()
                 return HttpResponse(json.dumps({
@@ -316,7 +300,6 @@ class ShoppingListViews:
         return HttpResponseServerError(json.dumps(
             {"error": "this function is not yet ready"}
         ))
-
 
     # POST views
     @staticmethod
@@ -548,8 +531,9 @@ class ShoppingListViews:
                 )
                 new_list.save()
                 return HttpResponse(json.dumps({
-                    "success": "Shpping List {} ({}) created successfully".
-                        format(new_list.name, new_list.pk)
+                    "name": new_list.name,
+                    "unique_id": new_list.unique_id,
+                    "pk": new_list.pk
                 }, ensure_ascii=False))
 
             except KeyError:
