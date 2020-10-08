@@ -37,6 +37,12 @@ class ShoppingListObject {
   bool isBought;
 
   ShoppingListObject({this.product, this.units, this.amount, this.userAdded, this.isBought});
+
+  String getUnitsText() {
+    if (this.units == "units")
+      return "יחידות";
+    return 'ק"ג';
+  }
 }
 
 class Error {
