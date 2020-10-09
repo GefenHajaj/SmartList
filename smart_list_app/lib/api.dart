@@ -98,4 +98,55 @@ class Api {
     }
     return shoppingListItems;
   }
+
+  /// This function creates a new list for the user.
+  /// It returns the new list object.
+  /// Note that the name cannot be empty!
+  static Future createShoppingList(User user, String name) async {
+    ShoppingList newShoppingList = new ShoppingList(owner: user, name: name);
+    final url = Uri.http(baseUrl, "smartlist/list/create/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "name": name
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      newShoppingList.pk = responseMap['pk'];
+      newShoppingList.uniqueID = int.parse(responseMap['unique_id']);
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+    return newShoppingList;
+  }
+
+  /// This function adds a user to a list.
+  /// It returns the new list object.
+  static Future joinList(User user, String uniqueID) async {
+    int uniqueIDInt = int.parse(uniqueID, onError: (e) => null);
+    if (uniqueIDInt == null)
+      return Error(errorStatement: "Unique id must be number");
+
+    ShoppingList newShoppingList = new ShoppingList(uniqueID: uniqueIDInt);
+    final url = Uri.http(baseUrl, "smartlist/user/addlist/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "list_unique_id": uniqueIDInt
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      newShoppingList.pk = responseMap['pk'];
+      newShoppingList.name = responseMap['name'];
+      newShoppingList.owner = new User(name: responseMap['owner_name'], pk: responseMap['owner_pk']);
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+    return newShoppingList;
+
+  }
 }

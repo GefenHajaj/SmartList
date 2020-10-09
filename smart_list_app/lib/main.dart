@@ -17,6 +17,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Smart List',
       theme: ThemeData(
+        backgroundColor: Colors.yellow[50],
+        scaffoldBackgroundColor: Colors.yellow[50],
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
@@ -24,7 +26,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/loading': (context) => LoadingPage(),
         '/sign_up': (context) => SignUpPage(),
-        '/lists_page': (context) => ListsPage(user: new User(name: "גפן", pk: 4)),
+        '/lists_page': (context) => ListsPage(user: new User(name: "גפן", pk: 4), dataArrived: false,),
         '/list_page': (context) => ListPage(
           user: new User(name: "גפן", pk: 4),
           shoppingList: new ShoppingList(name: "חחח", owner:  new User(name: "גפן", pk: 4),

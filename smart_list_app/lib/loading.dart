@@ -32,7 +32,7 @@ class _LoadingPageState extends State<LoadingPage> {
       print ('${userInfo['name']} - ${userInfo['pk']}');
       Navigator.of(context).push(MaterialPageRoute<Null>(
           builder: (BuildContext context) {
-            return ListsPage(user: new User(name: userInfo['name'], pk: userInfo['pk']));
+            return ListsPage(user: new User(name: userInfo['name'], pk: userInfo['pk']), dataArrived: false,);
           }));
     }
     else

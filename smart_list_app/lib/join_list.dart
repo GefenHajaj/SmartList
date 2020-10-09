@@ -2,29 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/view_list_details.dart';
+import 'package:smart_list_app/lists_page.dart';
 
-class CreateListPage extends StatefulWidget {
+class JoinListPage extends StatefulWidget {
   final User user;
 
-  CreateListPage({Key key, @required this.user});
+  JoinListPage({Key key, @required this.user});
 
   @override
-  _CreateListPageState createState() => _CreateListPageState();
+  _JoinListPageState createState() => _JoinListPageState();
 }
 
-class _CreateListPageState extends State<CreateListPage> {
+class _JoinListPageState extends State<JoinListPage> {
   User _currentUser;
-  String _newShoppingListName = "";
+  String _uniqueIDString = "";
 
-  Color _buttonColor = Colors.grey[350];
-  Color _disabledButtonColor = Colors.grey[350];
-  Color _enabledButtonColor = Colors.white;
-
-  String _buttonText = "הכנס שם";
-  String _disabledButtonText = "הכנס שם";
+  String _buttonText = "הכנס מספר רשימה";
   String _enabledButtonText = "המשך";
+  String _disabledButtonText = "הכנס מספר רשימה";
 
-  bool _isButtonEnabled = false;
+  Color _enabledButtonColor = Colors.white;
+  Color _disabledButtonColor = Colors.grey[350];
 
   @override
   void initState() {
@@ -33,27 +31,51 @@ class _CreateListPageState extends State<CreateListPage> {
     _currentUser = widget.user;
   }
 
-  /// Create the new list and go to get list info.
-  /// If the list name is empty - do nothing.
-  void createNewList() async {
-    if (_newShoppingListName != "") {
+  /// Is unique id valid
+  bool isUniqueIDValid() {
+    return _uniqueIDString.length == 8 && int.parse(_uniqueIDString, onError: (e) => null) != null;
+  }
+  
+  /// Go to main screen with delay
+  void goToListsPage() {
+    Future.delayed(const Duration(seconds: 1), () {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+            builder: (BuildContext context) => ListsPage(user: _currentUser, dataArrived: true)
+        ), (Route<dynamic> route) => false,
+      );
+    });
+  }
+
+  /// Join a list and go to view list page
+  void joinList() async {
+    if (isUniqueIDValid()) {
       setState(() {
-        _buttonText = "טוען...";
+        _enabledButtonText = "טוען...";
       });
-      var newShoppingList = await Api.createShoppingList(_currentUser, _newShoppingListName);
-      setState(() {
-        _enabledButtonColor = Colors.green;
-        _buttonText = "יש!";
-      });
-      Navigator.of(context).push(MaterialPageRoute<Null>(
-          builder: (BuildContext context) {
-            return ViewListDetailsPage(user: _currentUser, newShoppingList: newShoppingList);
-          }));
+      var newShoppingList = await Api.joinList(_currentUser, _uniqueIDString);
+      if (newShoppingList is ShoppingList) {
+        setState(() {
+          _buttonText = "יש!";
+          _enabledButtonColor = Colors.green;
+        });
+        Navigator.of(context).push(MaterialPageRoute<Null>(
+            builder: (BuildContext context) {
+              return ViewListDetailsPage(
+                  user: _currentUser, newShoppingList: newShoppingList);
+            }));
+      }
+      else {
+        setState(() {
+          _buttonText = "שגיאה";
+          _enabledButtonColor = Colors.red;
+        });
+       goToListsPage();
+      }
     }
   }
 
-
-  /// Get the page of the screen
+  /// Get the body of the page
   Widget getBody() {
     return SafeArea(
         child: Padding(
@@ -78,7 +100,7 @@ class _CreateListPageState extends State<CreateListPage> {
                     flex: 1,
                     child: Center(
                       child: Text(
-                        "שם רשימה",
+                        "מספר רשימה",
                         textDirection: TextDirection.rtl,
                         style: TextStyle(
                           fontSize: 20,
@@ -95,21 +117,15 @@ class _CreateListPageState extends State<CreateListPage> {
                           counterText: "",
                         ),
                         keyboardType: TextInputType.name,
-                        textDirection: TextDirection.rtl,
+                        // textDirection: TextDirection.rtl,
                         maxLength: 50,
                         onChanged: (input) {
                           setState(() {
-                            _newShoppingListName = input;
-                            if (_newShoppingListName != "") {
-                              _buttonColor = _enabledButtonColor;
+                            _uniqueIDString = input;
+                            if (isUniqueIDValid())
                               _buttonText = _enabledButtonText;
-                              _isButtonEnabled = true;
-                            }
-                            else {
-                              _buttonColor = _disabledButtonColor;
+                            else
                               _buttonText = _disabledButtonText;
-                              _isButtonEnabled = false;
-                            }
                           });
                         },
                       ),
@@ -125,11 +141,11 @@ class _CreateListPageState extends State<CreateListPage> {
                   children: [
                     Container(),
                     FlatButton(
-                      disabledColor: _buttonColor,
+                      disabledColor: _disabledButtonColor,
                       color: _enabledButtonColor,
                       disabledTextColor: Colors.black54,
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
-                      onPressed: _isButtonEnabled ? createNewList : null,
+                      onPressed: isUniqueIDValid() ? joinList : null,
                       child: Text(_buttonText,
                         textDirection: TextDirection.rtl,),
                       shape: ContinuousRectangleBorder(side: BorderSide(
@@ -161,11 +177,10 @@ class _CreateListPageState extends State<CreateListPage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: getBody()
+      body: getBody(),
     );
   }
 }

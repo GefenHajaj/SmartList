@@ -193,8 +193,11 @@ class _ListPageState extends State<ListPage> {
     return Scaffold(
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
+        actions: [
+          IconButton(icon: Icon(Icons.settings), onPressed: () {print("List settings"); })
+        ],
         centerTitle: true,
-        title: Center(child: Text(currentShoppingList.name)),
+        title: Center(child: Text(currentShoppingList.name, textDirection: TextDirection.rtl,)),
         elevation: 0.0,
       ),
       body: getPage(),

@@ -156,16 +156,17 @@ class UserViews:
             try:
                 info = json.loads(request.body)
                 user = get_object_or_404(User, pk=info['user_pk'])
-                shopping_list = get_object_or_404(ShoppingList,
-                                                  pk=info['list_pk'],
-                                                  name=info['list_name'],
-                                                  unique_id=info['list_unique_id'])
+                shopping_list = get_object_or_404(
+                    ShoppingList,
+                    unique_id=info['list_unique_id']
+                )
                 shopping_list.editors.add(user)
                 return HttpResponse(json.dumps({
-                    "success": "added user {} to list {}".format(
-                        user.pk,
-                        shopping_list.pk
-                    )
+                    "name": shopping_list.name,
+                    "pk": shopping_list.pk,
+                    "owner_pk": shopping_list.owner.pk,
+                    "owner_name": shopping_list.owner.name,
+
                 }, ensure_ascii=False))
             except KeyError:
                 return HttpResponseBadRequest(json.dumps(
