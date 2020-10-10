@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:math';
 import 'package:smart_list_app/add_item_to_list.dart';
+import 'package:smart_list_app/change_item_properties.dart';
 
 
 class ListPage extends StatefulWidget {
@@ -68,6 +69,13 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  void goToChangeItemProperties(ShoppingListObject item) {
+    Navigator.of(context).push(MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return ChangeItemPropertiesPage(user: currentUser, shoppingList: currentShoppingList, item: item,);
+        }));
+  }
+
   /// Modify the items list according to the search and setState
   /// to show only items fitting to the search word.
   void doSearch() {
@@ -125,7 +133,7 @@ class _ListPageState extends State<ListPage> {
                           print("Long press");
                         },
                         onTap: () {
-                          print("Go to item.");
+                          goToChangeItemProperties(currentItems[index]);
                         },
                         leading: CircleAvatar(child: Text(currentUserList
                             .name[0]), backgroundColor: currentColor,),
@@ -189,7 +197,7 @@ class _ListPageState extends State<ListPage> {
                   print("Long press");
                 },
                 onTap: () {
-                  print("Go to item.");
+                  goToChangeItemProperties(currentItems[index]);
                 },
                 leading: CircleAvatar(child: Text(currentUserList
                     .name[0]), backgroundColor: currentColor,),

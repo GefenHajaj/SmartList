@@ -37,7 +37,7 @@ class ShoppingListObject {
   bool isBought;
   int pk;
 
-  ShoppingListObject({this.product, this.units, this.amount, this.userAdded, this.isBought});
+  ShoppingListObject({this.product, this.units, this.amount, this.userAdded, this.isBought, this.pk});
 
   String getUnitsText() {
     if (this.units == "units")

@@ -24,7 +24,7 @@ class _LoadingPageState extends State<LoadingPage> {
   /// Go to a page according to result.
   Future checkIfAlreadySigned() async {
     final directory = await getApplicationDocumentsDirectory();
-    File userFile = File('${directory.path}/user_info.txt');
+    File userFile = File('${directory.path}/user_info1.txt');
     if (userFile.existsSync()) {
       print("Registered");
       // Todo: Call the API and tell him that the user connected

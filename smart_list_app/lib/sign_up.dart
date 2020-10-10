@@ -68,7 +68,7 @@ class _SignUpPageState extends State<SignUpPage> {
       buttonColor = successButtonColor;
       Navigator.of(context).push(MaterialPageRoute<Null>(
           builder: (BuildContext context) {
-      return ListsPage(user: createdUser);
+      return ListsPage(user: createdUser, dataArrived: false,);
       }));
     });
   }

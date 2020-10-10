@@ -4,33 +4,36 @@ import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/list_page.dart';
 
-class AddItemToListPage extends StatefulWidget {
+class ChangeItemPropertiesPage extends StatefulWidget {
   final User user;
   final ShoppingList shoppingList;
+  final ShoppingListObject item;
 
-  AddItemToListPage({Key key, @required this.user, @required this.shoppingList});
+  ChangeItemPropertiesPage({Key key, @required this.user, @required this.shoppingList, @required this.item});
 
   @override
-  _AddItemToListPageState createState() => _AddItemToListPageState();
+  _ChangeItemPropertiesPageState createState() => _ChangeItemPropertiesPageState();
 }
 
-class _AddItemToListPageState extends State<AddItemToListPage> {
+class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
   User _currentUser;
   ShoppingList _currentShoppingList;
+  ShoppingListObject _currentItem;
 
-  String _productName = "";
+  String _newName = "";
+  double _newAmountNumber;
+  double _newAmountFriction;
+  int _newUnits;
 
-  int _units = 0; // 0 - units, 1 - kg
   Map<int, Widget> _unitsMap = {
     1 : Text("קילוגרם"),
     0 : Text("יחידות"),
   };
-  double _amountNumber = 1;
-  double _amountFriction = 0;
 
-  String _buttonText = "הכנס שם מוצר";
+
+  String _buttonText = "שנה משהו";
   String _enabledButtonText = "המשך";
-  String _disabledButtonText = "הכנס שם מוצר";
+  String _disabledButtonText = "שנה משהו";
 
   Color _enabledButtonColor = Colors.white;
   Color _disabledButtonColor = Colors.grey[350];
@@ -50,38 +53,72 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
     super.initState();
     _currentUser = widget.user;
     _currentShoppingList = widget.shoppingList;
-    _scrollController = FixedExtentScrollController();
-    _scrollControllerNumber = FixedExtentScrollController(initialItem: 1);
+    _currentItem = widget.item;
+    _newName = _currentItem.product.name;
+    _newUnits = _currentItem.units == "units" ? 0 : 1;
+     _newAmountNumber = _currentItem.amount.toInt().toDouble().roundToDouble();
+     _newAmountFriction =  double.parse((_currentItem.amount - _currentItem.amount.toInt()).toStringAsFixed(1));
+    _scrollController = FixedExtentScrollController(initialItem: (_newAmountFriction * 10).toInt());
+    _scrollControllerNumber = FixedExtentScrollController(initialItem: _newAmountNumber.toInt());
   }
 
-  /// Add the item to the list and go back to list page
-  void addItemToList() async {
-    String unitsText = _units == 0 ? "units" : "kg";
-    ShoppingListObject newItem = await Api.addItemToList(_currentUser, _currentShoppingList, _productName, unitsText, _amountNumber + _amountFriction);
-    _currentShoppingList.items.add(newItem);
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (BuildContext context) => ListPage(user: _currentUser, shoppingList: _currentShoppingList, dataArrived: true)),
-          (Route<dynamic> route) => shouldPop(),
-    );
-  }
-
-  void amountPickHandleNumbers(int index) {
-    _amountNumber = index.toDouble();
-    print(_amountNumber);
-  }
-
-  void amountPickHandleFrictions(int index) {
-    _amountFriction = index / 10.0;
-    if (_units == 0) {
-      goToZero();
-      _amountFriction = 0;
-    }
-    print(_amountFriction);
+  /// Check if anything changed
+  bool hasAnythingChanged() {
+    double amount = _newAmountNumber + _newAmountFriction;
+    String units = _newUnits == 0 ? "units" : "kg";
+    return _currentItem.product.name != _newName || _currentItem.units != units || _currentItem.amount != amount;
   }
 
   void goToZero() {
     _scrollController.animateToItem(0, duration: Duration(milliseconds: 500), curve: Curves.ease);
   }
+
+  /// Change the item properties and go back to the list screen
+  void changeItemProperties() async {
+    if (hasAnythingChanged()) {
+      _currentItem.product.name = _newName;
+      _currentItem.amount = _newAmountNumber + _newAmountFriction;
+      _currentItem.units = _newUnits == 0 ? "units" : "kg";
+      await Api.changeListItem(_currentUser, _currentItem);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (BuildContext context) => ListPage(user: _currentUser, shoppingList: _currentShoppingList, dataArrived: true)),
+            (Route<dynamic> route) => shouldPop(),
+      );
+    }
+  }
+
+
+  void changeButtonText() {
+    if (_newName != "" && hasAnythingChanged()) {
+        _buttonText = _enabledButtonText;
+    }
+    else {
+        _buttonText = _disabledButtonText;
+    }
+  }
+
+  void amountPickHandleNumbers(int index) {
+    setState(() {
+      _newAmountNumber = index.toDouble();
+      changeButtonText();
+    });
+    print(_newAmountNumber);
+  }
+
+  void amountPickHandleFrictions(int index) {
+    setState(() {
+      if (_newUnits == 0) {
+        goToZero();
+        _newAmountFriction = 0.0;
+      }
+      else {
+        _newAmountFriction = index / 10.0;
+      }
+      changeButtonText();
+    });
+    print(_newAmountFriction);
+  }
+
 
   /// Get the body of the page
   Widget getBody() {
@@ -119,8 +156,9 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                   Expanded(
                     flex: 2,
                     child: Container(
-                      child: TextField(
+                      child: TextFormField(
                         // textAlignVertical: TextAlignVertical.bottom,
+                        initialValue: _newName,
                         decoration: InputDecoration(
                           counterText: "",
                         ),
@@ -129,11 +167,8 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                         maxLength: 50,
                         onChanged: (input) {
                           setState(() {
-                            _productName = input;
-                            if (_productName != "")
-                              _buttonText = _enabledButtonText;
-                            else
-                              _buttonText = _disabledButtonText;
+                            _newName = input;
+                            changeButtonText();
                           });
                         },
                       ),
@@ -147,19 +182,20 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 15.0),
-                    child: Text("בחר סוג יחידות:", textDirection: TextDirection.rtl,),
+                    child: Text("סוג יחידות:", textDirection: TextDirection.rtl,),
                   ),
                   CupertinoSegmentedControl<int>(
-                      children: _unitsMap,
-                      onValueChanged: (int unitsValue) {
-                        setState(() {
-                          _units = unitsValue;
-                          if (_units == 0) {
-                            goToZero();
-                          }
-                        });
-                      },
-                    groupValue: _units,
+                    children: _unitsMap,
+                    onValueChanged: (int unitsValue) {
+                      setState(() {
+                        _newUnits = unitsValue;
+                        if (_newUnits == 0) {
+                          goToZero();
+                        }
+                        changeButtonText();
+                      });
+                    },
+                    groupValue: _newUnits,
                     borderColor: Colors.black54,
                     selectedColor: Colors.green[400],
                   ),
@@ -183,7 +219,7 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                             child: Directionality(
                               textDirection: TextDirection.rtl,
                               child: CupertinoPicker(
-                                scrollController: _scrollControllerNumber,
+                                  scrollController: _scrollControllerNumber,
                                   itemExtent: 30,
                                   onSelectedItemChanged: amountPickHandleNumbers,
                                   children: List<Widget>.generate(100, (int index) {
@@ -196,7 +232,7 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                         Expanded(
                           child: Center(
                             child: CupertinoPicker(
-                              scrollController: _scrollController,
+                                scrollController: _scrollController,
                                 itemExtent: 30,
                                 onSelectedItemChanged: amountPickHandleFrictions,
                                 children: List<Widget>.generate(10, (int index) {
@@ -222,7 +258,7 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                       color: _enabledButtonColor,
                       disabledTextColor: Colors.black54,
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
-                      onPressed: _productName != "" ? addItemToList : null,
+                      onPressed: hasAnythingChanged() && _newName != "" ? changeItemProperties : null,
                       child: Text(_buttonText,
                         textDirection: TextDirection.rtl,),
                       shape: ContinuousRectangleBorder(side: BorderSide(
@@ -253,7 +289,6 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
         )
     );
   }
-
 
   @override
   Widget build(BuildContext context) {

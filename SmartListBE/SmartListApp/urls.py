@@ -97,4 +97,10 @@ urlpatterns = [
         views.ListObjectViews.change_item_amount,
         name="change_item_amount"
     ),
+
+    path(
+        'item/change/',
+        views.ListObjectViews.change_list_item,
+        name="change_list_item"
+    ),
 ]

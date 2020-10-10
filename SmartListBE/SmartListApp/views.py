@@ -244,7 +244,7 @@ class ShoppingListViews:
                         "amount": float(obj.amount),
                         "user_added_name": obj.user_added.name,
                         "user_added_pk": obj.user_added.pk,
-                        "is_bought": obj.is_bought
+                        "is_bought": obj.is_bought,
                     }
                 return HttpResponse(json.dumps(objects_info,
                                                ensure_ascii=False))
@@ -658,5 +658,42 @@ class ListObjectViews:
         else:
             return HttpResponseBadRequest(
                 "change_item_unit(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def change_list_item(request):
+        """
+        Change item's properties.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+                item = get_object_or_404(ListObject, pk=info['pk'])
+                item.amount = info['amount']
+                item.units = info['units']
+                item.product.name = info['name']
+                item.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "list item {} changed to amount {}".format(
+                        item.pk,
+                        item.amount
+                    )
+                }))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e,
+                                                                     traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "change_list_item(): should be a post request"
             )
 

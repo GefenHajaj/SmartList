@@ -82,6 +82,7 @@ class Api {
 
         // Create the shopping list item and add it to the final list
         ShoppingListObject newShoppingListItem = new ShoppingListObject(
+          pk: int.parse(pk),
           product: new Product(
               name: shoppingListItemData['name'], pk: shoppingListItemData['product_pk']),
           units: shoppingListItemData['units'],
@@ -181,5 +182,25 @@ class Api {
       return Error(errorStatement: responseMap['error']);
     }
     return newItem;
+  }
+
+  static Future changeListItem(User user, ShoppingListObject item) async {
+    final url = Uri.http(baseUrl, "smartlist/item/change/");
+    String body = json.encode({
+      "pk": item.pk,
+      "amount": item.amount,
+      "units": item.units,
+      "name": item.product.name
+    });
+    print(body);
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
   }
 }
