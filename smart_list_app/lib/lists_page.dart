@@ -35,7 +35,7 @@ class _ListsPageState extends State<ListsPage> {
   void goToList(ShoppingList shoppingList) {
     Navigator.of(context).push(MaterialPageRoute<Null>(
         builder: (BuildContext context) {
-          return ListPage(user: currentUser, shoppingList: shoppingList);
+          return ListPage(user: currentUser, shoppingList: shoppingList, dataArrived: false,);
         }));
   }
 

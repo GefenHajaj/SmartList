@@ -349,11 +349,8 @@ class ShoppingListViews:
                 )
                 list_item.save()
                 return HttpResponse(json.dumps({
-                    "success": "Item {} ({}) Added to list {}".format(
-                        product.name,
-                        list_item.pk,
-                        shopping_list.pk
-                    )
+                    "pk": list_item.pk,
+                    "product_pk": list_item.product.pk,
                 }, ensure_ascii=False))
             except KeyError:
                 return HttpResponseBadRequest(json.dumps(

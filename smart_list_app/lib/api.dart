@@ -147,6 +147,39 @@ class Api {
       return Error(errorStatement: responseMap['error']);
     }
     return newShoppingList;
+  }
 
+  /// Create a new item and add it to a list.
+  /// returns the new shopping list item.
+  static Future addItemToList(User user, ShoppingList shoppingList, String productName, String units, double amount) async {
+    if (productName == "")
+      return Error(errorStatement: "product name must not be empty");
+
+    ShoppingListObject newItem = new ShoppingListObject(
+      product: new Product(name: productName),
+      units: units,
+      amount: amount,
+      userAdded: user,
+      isBought: false
+    );
+    final url = Uri.http(baseUrl, "smartlist/list/add/");
+    String body = json.encode({
+      "product_name": productName,
+      "user_pk": user.pk,
+      "list_pk": shoppingList.pk,
+      "units": units,
+      "amount": amount
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      newItem.product.pk = responseMap['product_pk'];
+      newItem.pk = responseMap['pk'];
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+    return newItem;
   }
 }

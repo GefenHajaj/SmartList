@@ -7,13 +7,15 @@ import 'package:smart_list_app/lists_page.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:smart_list_app/add_item_to_list.dart';
 
 
 class ListPage extends StatefulWidget {
   final User user;
   final ShoppingList shoppingList;
+  final bool dataArrived;
 
-  ListPage({@required this.user, @required this.shoppingList});
+  ListPage({@required this.user, @required this.shoppingList, @required this.dataArrived});
 
   @override
   _ListPageState createState() => _ListPageState();
@@ -28,7 +30,7 @@ class _ListPageState extends State<ListPage> {
   Map userColors = {};
   List colors = [Colors.red, Colors.green, Colors.blue, Colors.brown, Colors.pink[300], Colors.purple[400]];
   Random random = new Random();
-  bool dataArrived = false;
+  bool dataArrived;
 
   @override
   void initState() {
@@ -36,12 +38,22 @@ class _ListPageState extends State<ListPage> {
     super.initState();
     currentUser = widget.user;
     currentShoppingList = widget.shoppingList;
-    items = Api.getShoppingListItems(currentShoppingList);
+    dataArrived = widget.dataArrived;
+    if (!dataArrived)
+      items = Api.getShoppingListItems(currentShoppingList);
   }
 
-  // Go to buying mode
+  /// Go to buying mode
   void goToSuperMode() {
     print("Go to super mode");
+  }
+
+  /// Go to add item page
+  void goToAddItemPage() {
+    Navigator.of(context).push(MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return AddItemToListPage(user: currentUser, shoppingList: currentShoppingList,);
+        }));
   }
 
   /// Arrange the current Items to show.
@@ -64,68 +76,135 @@ class _ListPageState extends State<ListPage> {
   }
 
   Widget getItemsList() {
-    return FutureBuilder(
-        future: items,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            // Arrange data
-            if (!dataArrived) {
-              dataArrived = true;
-              List shoppingListItems = snapshot.data;
-              currentShoppingList.items = shoppingListItems;
-            }
-            currentItems = currentShoppingList.items;
-            arrangeCurrentItems(searchWord);
+    if (!dataArrived) {
+      return FutureBuilder(
+          future: items,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              // Arrange data
+              if (!dataArrived) {
+                dataArrived = true;
+                List shoppingListItems = snapshot.data;
+                currentShoppingList.items = shoppingListItems;
+              }
+              currentItems = currentShoppingList.items;
+              arrangeCurrentItems(searchWord);
 
-            if (currentItems.isEmpty) {
-              print("Number of shopping list items: ${currentItems.length}");
-              return Center(child: Text("אין מוצרים להראות"));
+              if (currentItems.isEmpty) {
+                print("Number of shopping list items: ${currentItems.length}");
+                return Center(child: Text("אין מוצרים להראות"));
+              }
+              else {
+                return ListView.builder(
+                  // scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    // Determine color for item
+                    Color currentColor;
+                    User currentUserList;
+                    if (index < currentItems.length) {
+                      currentUserList = currentItems[index].userAdded;
+                      if (userColors.keys.contains(currentUserList.pk)) {
+                        currentColor = userColors[currentUserList.pk];
+                      }
+                      else {
+                        currentColor = colors[random.nextInt(colors.length)];
+                        while (userColors.values.contains(currentColor) &&
+                            userColors.length < colors.length) {
+                          currentColor = colors[random.nextInt(colors.length)];
+                        }
+                        userColors[currentUserList.pk] = currentColor;
+                      }
+                    }
+
+                    // Create the list:
+                    return Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: ListTile(
+                        onLongPress: () {
+                          print("Long press");
+                        },
+                        onTap: () {
+                          print("Go to item.");
+                        },
+                        leading: CircleAvatar(child: Text(currentUserList
+                            .name[0]), backgroundColor: currentColor,),
+                        title: Text(currentItems[index].product.name),
+                        subtitle: Text("נוסף על ידי ${currentUserList.name}"),
+                        trailing: Text(
+                            "${currentItems[index].amount} ${currentItems[index]
+                                .getUnitsText()}"),
+                      ),
+                    );
+                  },
+                  itemCount: currentItems.length,
+                );
+              }
             }
             else {
-              return ListView.builder(
-                // scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  // Determine color for item
-                  Color currentColor;
-                  User currentUserList;
-                  if (index < currentItems.length){
-                    currentUserList = currentItems[index].userAdded;
-                    if (userColors.keys.contains(currentUserList.pk))
-                    {
-                      currentColor = userColors[currentUserList.pk];
-                    }
-                    else {
-                      currentColor = colors[random.nextInt(colors.length)];
-                      while (userColors.values.contains(currentColor) && userColors.length < colors.length) {
-                        currentColor = colors[random.nextInt(colors.length)];
-                      }
-                      userColors[currentUserList.pk] = currentColor;
-                    }
-                  }
-
-                  // Create the list:
-                  return Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: ListTile(
-                      onLongPress: () {print("Long press"); },
-                      onTap: () { print("Go to item."); },
-                      leading: CircleAvatar(child: Text(currentUserList.name[0]), backgroundColor: currentColor,),
-                      title: Text(currentItems[index].product.name),
-                      subtitle: Text("נוסף על ידי ${currentUserList.name}"),
-                      trailing: Text("${currentItems[index].amount} ${currentItems[index].getUnitsText()}"),
-                    ),
-                  );
-                },
-                itemCount: currentItems.length,
-              );
+              return Center(child: SizedBox(
+                  width: 30, height: 30, child: CircularProgressIndicator()));
             }
           }
-          else {
-            return Center(child: SizedBox(width: 30, height: 30, child: CircularProgressIndicator()));
-          }
-        }
-    );
+      );
+    }
+
+    // If we already have the data:
+    else {
+      currentItems = currentShoppingList.items;
+      arrangeCurrentItems(searchWord);
+
+      if (currentItems.isEmpty) {
+        print("Number of shopping list items: ${currentItems.length}");
+        return Center(child: Text("אין מוצרים להראות"));
+      }
+      else {
+        return ListView.builder(
+          // scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, int index) {
+            // Determine color for item
+            Color currentColor;
+            User currentUserList;
+            if (index < currentItems.length) {
+              currentUserList = currentItems[index].userAdded;
+              if (userColors.keys.contains(currentUserList.pk)) {
+                currentColor = userColors[currentUserList.pk];
+              }
+              else {
+                currentColor = colors[random.nextInt(colors.length)];
+                while (userColors.values.contains(currentColor) &&
+                    userColors.length < colors.length) {
+                  currentColor = colors[random.nextInt(colors.length)];
+                }
+                userColors[currentUserList.pk] = currentColor;
+              }
+            }
+
+            // Create the list:
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: ListTile(
+                onLongPress: () {
+                  print("Long press");
+                },
+                onTap: () {
+                  print("Go to item.");
+                },
+                leading: CircleAvatar(child: Text(currentUserList
+                    .name[0]), backgroundColor: currentColor,),
+                title: Text(currentItems[index].product.name),
+                subtitle: Text("נוסף על ידי ${currentUserList.name}"),
+                trailing: Text(
+                    "${currentItems[index].amount} ${currentItems[index]
+                        .getUnitsText()}"),
+              ),
+            );
+          },
+          itemCount: currentItems.length,
+        );
+      }
+    }
   }
 
   /// Get the entire page
@@ -194,8 +273,13 @@ class _ListPageState extends State<ListPage> {
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         actions: [
-          IconButton(icon: Icon(Icons.settings), onPressed: () {print("List settings"); })
+          IconButton(icon: Icon(Icons.add), onPressed: goToAddItemPage),
+          IconButton(icon: Icon(Icons.settings), onPressed: () {print("List settings"); }),
         ],
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () { Navigator.of(context).pop(); },
+        ),
         centerTitle: true,
         title: Center(child: Text(currentShoppingList.name, textDirection: TextDirection.rtl,)),
         elevation: 0.0,

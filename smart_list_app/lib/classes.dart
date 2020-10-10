@@ -35,6 +35,7 @@ class ShoppingListObject {
   double amount;
   User userAdded;
   bool isBought;
+  int pk;
 
   ShoppingListObject({this.product, this.units, this.amount, this.userAdded, this.isBought});
 
