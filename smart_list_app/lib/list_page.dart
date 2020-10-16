@@ -1,14 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
-import 'package:smart_list_app/lists_page.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 import 'dart:math';
 import 'package:smart_list_app/add_item_to_list.dart';
 import 'package:smart_list_app/change_item_properties.dart';
+import 'package:smart_list_app/super_mode_page.dart';
 
 
 class ListPage extends StatefulWidget {
@@ -16,7 +13,7 @@ class ListPage extends StatefulWidget {
   final ShoppingList shoppingList;
   final bool dataArrived;
 
-  ListPage({@required this.user, @required this.shoppingList, @required this.dataArrived});
+  ListPage({Key key, @required this.user, @required this.shoppingList, @required this.dataArrived});
 
   @override
   _ListPageState createState() => _ListPageState();
@@ -46,7 +43,10 @@ class _ListPageState extends State<ListPage> {
 
   /// Go to buying mode
   void goToSuperMode() {
-    print("Go to super mode");
+    Navigator.of(context).push(MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return SuperModePage(user: currentUser, shoppingList: currentShoppingList,);
+        }));
   }
 
   /// Go to add item page

@@ -68,7 +68,7 @@ class Api {
   }
 
 
-  static Future getShoppingListItems(ShoppingList shoppingList) async {
+  static Future<List<ShoppingListObject>> getShoppingListItems(ShoppingList shoppingList) async {
     final getParams = {
       "pk": shoppingList.pk.toString()
     };
@@ -96,7 +96,7 @@ class Api {
       }
     }
     else {
-      return Error(errorStatement: responseMap['error']);
+      return null;
     }
     return shoppingListItems;
   }
@@ -208,6 +208,74 @@ class Api {
 
   static Future deleteShoppingList(User user, ShoppingList shoppingList) async {
     final url = Uri.http(baseUrl, "smartlist/list/delete/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "pk": shoppingList.pk
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+  }
+
+  static Future buyShoppingListItem(User user, ShoppingListObject item) async {
+    final url = Uri.http(baseUrl, "smartlist/list/buy/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "pk": item.pk
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+  }
+
+  static Future unbuyShoppingListItem(User user, ShoppingListObject item) async {
+    final url = Uri.http(baseUrl, "smartlist/list/unbuy/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "pk": item.pk
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+  }
+
+  static Future deleteShoppingListItem(User user, ShoppingListObject item) async {
+    final url = Uri.http(baseUrl, "smartlist/list/remove/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "pk": item.pk
+    });
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+  }
+
+  static Future wipeShoppingList(User user, ShoppingList shoppingList) async {
+    final url = Uri.http(baseUrl, "smartlist/list/wipe/");
     String body = json.encode({
       "user_pk": user.pk,
       "pk": shoppingList.pk
