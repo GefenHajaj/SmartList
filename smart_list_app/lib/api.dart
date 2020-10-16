@@ -14,6 +14,7 @@ class Api {
   // static final String baseUrl = "172.20.10.2:8000";  // through hotspot
   // static final String baseUrl = "127.0.0.1:8000";  // for android
 
+  /// Create and register a new user.
   static Future createUser(userInfo) async {
     final url = Uri.http(baseUrl, "/smartlist/user/register/");
     final Response response =  await post(url, body: jsonEncode(userInfo));
@@ -184,6 +185,8 @@ class Api {
     return newItem;
   }
 
+  /// Change an item - the amount, the unit or the name.
+  /// returns null on success and error on failure.
   static Future changeListItem(User user, ShoppingListObject item) async {
     final url = Uri.http(baseUrl, "smartlist/item/change/");
     String body = json.encode({
@@ -192,7 +195,23 @@ class Api {
       "units": item.units,
       "name": item.product.name
     });
-    print(body);
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+  }
+
+  static Future deleteShoppingList(User user, ShoppingList shoppingList) async {
+    final url = Uri.http(baseUrl, "smartlist/list/delete/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "pk": shoppingList.pk
+    });
     final Response response = await post(url, body: body);
     final responseMap = jsonDecode(response.body);
 

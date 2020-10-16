@@ -478,6 +478,8 @@ class ShoppingListViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+                # TODO: Make sure the user who delete's the shopping list is
+                # The owner or one of the editors of the list.
                 shopping_list = get_object_or_404(ShoppingList, pk=info['pk'])
 
                 # Delete all the items in the list
@@ -503,7 +505,7 @@ class ShoppingListViews:
                 ))
         else:
             return HttpResponseBadRequest(
-                "wipe_list(): should be a post request"
+                "delete_shopping_list(): should be a post request"
             )
 
     @staticmethod

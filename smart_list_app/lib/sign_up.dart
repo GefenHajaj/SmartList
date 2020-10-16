@@ -53,10 +53,11 @@ class _SignUpPageState extends State<SignUpPage> {
 
   /// Sign up
   void signUp() async {
-    // TODO: Save user info locally
     createdUser = await Api.createUser({"name": name});
     print(createdUser.name);
     print(createdUser.pk);
+
+    // Save user data locally
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/user_info.txt');
     file.writeAsString(jsonEncode({
