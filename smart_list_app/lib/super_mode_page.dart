@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/list_page.dart';
@@ -179,7 +178,7 @@ class _SuperModePageState extends State<SuperModePage> {
                 ),
                 backgroundColor: _currentItems[index].isBought ? Colors.black54 : Colors.blue[200],
               ),
-              title: Text(_currentItems[index].product.name),
+              title: Text("${_currentItems[index].product.name}${_currentItems[index].isBought ? " - נקנה" : ""}"),
               subtitle: Text(
                   "נוסף על ידי ${_currentItems[index].userAdded.name}"),
               trailing: Text(
@@ -220,7 +219,7 @@ class _SuperModePageState extends State<SuperModePage> {
               ),
             ),
             Expanded(flex:6,child: Container(child: getItemsList())),
-            Expanded(flex:1,child: Container(height: MediaQuery.of(context).size.height, color: Colors.grey[300],
+            Expanded(flex:1,child: Container(height: MediaQuery.of(context).size.height, color: Colors.blue[100],
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 textDirection: TextDirection.rtl,
@@ -240,7 +239,7 @@ class _SuperModePageState extends State<SuperModePage> {
                         style: BorderStyle.solid
                     )),
                   ),
-                  Container(color: Colors.grey),
+                  Container(color: Colors.blue),
                   FlatButton(
                       color: Colors.white,
                       padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 16.0),
@@ -283,6 +282,7 @@ class _SuperModePageState extends State<SuperModePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blue[50],
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         backgroundColor: Colors.blue[700],

@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:smart_list_app/add_item_to_list.dart';
 import 'package:smart_list_app/change_item_properties.dart';
 import 'package:smart_list_app/super_mode_page.dart';
+import 'package:smart_list_app/list_settings_page.dart';
 
 
 class ListPage extends StatefulWidget {
@@ -29,6 +30,7 @@ class _ListPageState extends State<ListPage> {
   List colors = [Colors.red, Colors.green, Colors.blue, Colors.brown, Colors.pink[300], Colors.purple[400]];
   Random random = new Random();
   bool dataArrived;
+  var _tapPosition;
 
   @override
   void initState() {
@@ -40,6 +42,52 @@ class _ListPageState extends State<ListPage> {
     if (!dataArrived)
       items = Api.getShoppingListItems(currentShoppingList);
   }
+
+  /// Save the location of press
+  void _storePosition(TapDownDetails details) {
+    _tapPosition = details.globalPosition;
+  }
+
+  /// Show the pop up menu
+  void showPopUpMenu(ShoppingListObject item, var overlay) async {
+    await showMenu(
+        context: context,
+        position: RelativeRect.fromRect(
+            _tapPosition & Size(40, 40), // smaller rect, the touch area
+            Offset.zero & overlay.size // Bigger rect, the entire screen
+        ),
+        items: [
+          PopupMenuItem(
+            child: Center(
+              child: FlatButton(
+                child: Text(
+                  "מחק מוצר",
+                  textDirection: TextDirection.rtl,
+                ),
+                onPressed: () {
+                  deleteItem(item);
+                },
+              ),
+            ),
+          ),
+        ]
+    );
+  }
+
+  /// Delete item from the list
+  void deleteItem(ShoppingListObject item) async {
+    Navigator.of(context).pop();
+    Future.delayed(
+        Duration(milliseconds: 200), () {
+      Api.deleteShoppingListItem(currentUser, item);
+      setState(() {
+        currentShoppingList.items.remove(item);
+      });
+    }
+    );
+  }
+
+
 
   /// Go to buying mode
   void goToSuperMode() {
@@ -54,6 +102,14 @@ class _ListPageState extends State<ListPage> {
     Navigator.of(context).push(MaterialPageRoute<Null>(
         builder: (BuildContext context) {
           return AddItemToListPage(user: currentUser, shoppingList: currentShoppingList,);
+        }));
+  }
+
+  /// Go to list settings page
+  void goToListSettings() {
+    Navigator.of(context).push(MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return ListSettingsPage(user: currentUser, shoppingList: currentShoppingList,);
         }));
   }
 
@@ -84,6 +140,7 @@ class _ListPageState extends State<ListPage> {
   }
 
   Widget getItemsList() {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
     if (!dataArrived) {
       return FutureBuilder(
           future: items,
@@ -126,22 +183,25 @@ class _ListPageState extends State<ListPage> {
                     }
 
                     // Create the list:
-                    return Directionality(
-                      textDirection: TextDirection.rtl,
-                      child: ListTile(
-                        onLongPress: () {
-                          print("Long press");
-                        },
-                        onTap: () {
-                          goToChangeItemProperties(currentItems[index]);
-                        },
-                        leading: CircleAvatar(child: Text(currentUserList
-                            .name[0]), backgroundColor: currentColor,),
-                        title: Text(currentItems[index].product.name),
-                        subtitle: Text("נוסף על ידי ${currentUserList.name}"),
-                        trailing: Text(
-                            "${currentItems[index].amount} ${currentItems[index]
-                                .getUnitsText()}"),
+                    return GestureDetector(
+                      onTapDown: _storePosition,
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: ListTile(
+                          onLongPress: () {
+                            showPopUpMenu(currentItems[index], overlay);
+                          },
+                          onTap: () {
+                            goToChangeItemProperties(currentItems[index]);
+                          },
+                          leading: CircleAvatar(child: Text(currentUserList
+                              .name[0]), backgroundColor: currentColor,),
+                          title: Text(currentItems[index].product.name),
+                          subtitle: Text("נוסף על ידי ${currentUserList.name}"),
+                          trailing: Text(
+                              "${currentItems[index].amount} ${currentItems[index]
+                                  .getUnitsText()}"),
+                        ),
                       ),
                     );
                   },
@@ -190,22 +250,25 @@ class _ListPageState extends State<ListPage> {
             }
 
             // Create the list:
-            return Directionality(
-              textDirection: TextDirection.rtl,
-              child: ListTile(
-                onLongPress: () {
-                  print("Long press");
-                },
-                onTap: () {
-                  goToChangeItemProperties(currentItems[index]);
-                },
-                leading: CircleAvatar(child: Text(currentUserList
-                    .name[0]), backgroundColor: currentColor,),
-                title: Text(currentItems[index].product.name),
-                subtitle: Text("נוסף על ידי ${currentUserList.name}"),
-                trailing: Text(
-                    "${currentItems[index].amount} ${currentItems[index]
-                        .getUnitsText()}"),
+            return GestureDetector(
+              onTapDown: _storePosition,
+              child: Directionality(
+                textDirection: TextDirection.rtl,
+                child: ListTile(
+                  onLongPress: () {
+                    showPopUpMenu(currentItems[index], overlay);
+                  },
+                  onTap: () {
+                    goToChangeItemProperties(currentItems[index]);
+                  },
+                  leading: CircleAvatar(child: Text(currentUserList
+                      .name[0]), backgroundColor: currentColor,),
+                  title: Text(currentItems[index].product.name),
+                  subtitle: Text("נוסף על ידי ${currentUserList.name}"),
+                  trailing: Text(
+                      "${currentItems[index].amount} ${currentItems[index]
+                          .getUnitsText()}"),
+                ),
               ),
             );
           },
@@ -282,7 +345,7 @@ class _ListPageState extends State<ListPage> {
       appBar: AppBar(
         actions: [
           IconButton(icon: Icon(Icons.add), onPressed: goToAddItemPage),
-          IconButton(icon: Icon(Icons.settings), onPressed: () {print("List settings"); }),
+          IconButton(icon: Icon(Icons.settings), onPressed: () { goToListSettings(); }),
         ],
         leading: IconButton(
           icon: Icon(Icons.arrow_back),

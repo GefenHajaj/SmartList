@@ -87,6 +87,12 @@ urlpatterns = [
     ),
 
     path(
+        'list/getmembers/',
+        views.ShoppingListViews.get_all_list_members,
+        name="get_all_list_members"
+    ),
+
+    path(
         'item/changeunit/',
         views.ListObjectViews.change_item_unit,
         name="change_item_unit"

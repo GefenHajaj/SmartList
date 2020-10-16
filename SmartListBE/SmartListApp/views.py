@@ -304,9 +304,57 @@ class ShoppingListViews:
     @staticmethod
     @csrf_exempt
     def get_all_list_members(request):
-        return HttpResponseServerError(json.dumps(
-            {"error": "this function is not yet ready"}
-        ))
+        """
+        Get all the users that are editors or owners of a list,
+        Not including the user that requested the detail.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'GET':
+            try:
+                user_pk = request.GET['user_pk']
+                list_pk = request.GET['list_pk']
+
+                # Get the user who asked for the info
+                user = get_object_or_404(User, pk=user_pk)
+
+                # Get the shopping list
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=list_pk)
+
+                # Get the list of people in that list
+                editors = shopping_list.editors.all()
+                owner = shopping_list.owner
+
+                final_data = {}
+
+                # Add al the members of the list to the final data
+                for editor in editors:
+                    if str(editor.pk) != user_pk:
+                        final_data[editor.pk] = {
+                            "name": editor.name
+                        }
+                if str(owner.pk) != user_pk and owner.pk not in final_data:
+                    final_data[owner.pk] = {
+                        "name": owner.name
+                    }
+
+                # return the data
+                return HttpResponse(json.dumps(final_data, ensure_ascii=False))
+
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "get_all_list_members(): should be a get request"
+            )
+
 
     # POST views
     @staticmethod

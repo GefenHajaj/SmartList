@@ -290,4 +290,46 @@ class Api {
       return Error(errorStatement: responseMap['error']);
     }
   }
+
+  static Future getShoppingListMembers(User user, ShoppingList shoppingList) async {
+    final getParams = {
+      "user_pk": user.pk.toString(),
+      "list_pk": shoppingList.pk.toString()
+    };
+    List<User> listMembers = new List<User>();
+
+    final url = Uri.http(baseUrl, "smartlist/list/getmembers/", getParams);
+    final Response response = await get(url);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      for (String pk in responseMap.keys) {
+        final userData = responseMap[pk];
+
+        // Create the user object and add it to the users list
+        listMembers.add(new User(name: userData['name'], pk: int.parse(pk)));
+      }
+    }
+
+    return listMembers;
+  }
+
+  static Future removeUserFromList(User user, User userToRemove, ShoppingList shoppingList) async {
+    final url = Uri.http(baseUrl, "smartlist/user/exitlist/");
+    String body = json.encode({
+      "user_pk": user.pk,
+      "remove_user_pk": userToRemove.pk,
+      "shopping_list_pk": shoppingList.pk
+    });
+
+    final Response response = await post(url, body: body);
+    final responseMap = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return;
+    }
+    else {
+      return Error(errorStatement: responseMap['error']);
+    }
+  }
 }
