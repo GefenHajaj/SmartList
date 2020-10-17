@@ -13,5 +13,5 @@ The server is written entirely using django.
 It uses a MySQL server to store the data.
 
 The app is written using Flutter - which allows us to write the app both for android and iOS
-with on code base.
+with one code base.
 
