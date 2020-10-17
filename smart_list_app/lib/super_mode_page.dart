@@ -41,9 +41,8 @@ class _SuperModePageState extends State<SuperModePage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
-    super.dispose();
     _timer?.cancel();
+    super.dispose();
   }
 
   /// Cancel everything! Unbuy all the items and go back to previous page.

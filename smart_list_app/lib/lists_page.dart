@@ -4,6 +4,7 @@ import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/join_list.dart';
 import 'package:smart_list_app/list_page.dart';
 import 'package:smart_list_app/create_list.dart';
+import 'package:social_share/social_share.dart';
 
 
 class ListsPage extends StatefulWidget {
@@ -30,6 +31,11 @@ class _ListsPageState extends State<ListsPage> {
     currentUser = widget.user;
     if (!widget.dataArrived)
       data = Api.getUserLists(currentUser);
+  }
+
+  /// Share a list using the default share options
+  void shareList(ShoppingList shoppingList) {
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nמספר הרשימה שלי הוא ${shoppingList.uniqueID}");
   }
 
   /// Save the location of press
@@ -104,7 +110,7 @@ class _ListsPageState extends State<ListsPage> {
                   textDirection: TextDirection.rtl,
                 ),
                 onPressed: () {
-                    print("share the list");
+                    shareList(shoppingList);
                     Navigator.of(context).pop();
                   },
               ),
@@ -174,7 +180,11 @@ class _ListsPageState extends State<ListsPage> {
               }
             }
             else {
-              return CircularProgressIndicator();
+              return Center(child: Container(
+                  height: 40.0,
+                  width: 40.0,
+                  child: CircularProgressIndicator())
+              );
             }
           }
       );

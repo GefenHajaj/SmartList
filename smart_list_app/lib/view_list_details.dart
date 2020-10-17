@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/lists_page.dart';
+import 'package:social_share/social_share.dart';
 
 class ViewListDetailsPage extends StatefulWidget {
   final User user;
@@ -24,6 +25,11 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
     _currentUser = widget.user;
     _currentShoppingList = widget.newShoppingList;
     _currentUser.shoppingLists.add(_currentShoppingList);
+  }
+
+  /// Share a list using the default share options
+  void shareList(ShoppingList shoppingList) {
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nמספר הרשימה שלי הוא ${shoppingList.uniqueID}");
   }
 
   /// Go back to home screen.
@@ -81,7 +87,7 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: IconButton(
                         icon: Icon(Icons.ios_share),
-                        onPressed: () { print("Share!"); }
+                        onPressed: () { shareList(_currentShoppingList); }
                     ),
                   )
                 ],
