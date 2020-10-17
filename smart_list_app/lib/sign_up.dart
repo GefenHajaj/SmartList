@@ -164,7 +164,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: move check if already signed to a different page
     return Scaffold(
       body: getPage(),
     );

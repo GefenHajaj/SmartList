@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
-import 'package:smart_list_app/list_page.dart';
 import 'dart:async';
 
 class ListSettingsPage extends StatefulWidget {
@@ -23,7 +22,6 @@ class _ListSettingsPageState extends State<ListSettingsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _currentUser = widget.user;
     _currentShoppingList = widget.shoppingList;

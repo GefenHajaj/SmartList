@@ -26,7 +26,6 @@ class _JoinListPageState extends State<JoinListPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _currentUser = widget.user;
   }

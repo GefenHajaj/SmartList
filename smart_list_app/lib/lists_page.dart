@@ -26,7 +26,6 @@ class _ListsPageState extends State<ListsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     currentUser = widget.user;
     if (!widget.dataArrived)

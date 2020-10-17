@@ -28,7 +28,6 @@ class _CreateListPageState extends State<CreateListPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _currentUser = widget.user;
   }

@@ -46,7 +46,6 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _currentUser = widget.user;
     _currentShoppingList = widget.shoppingList;

@@ -20,7 +20,6 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _currentUser = widget.user;
     _currentShoppingList = widget.newShoppingList;

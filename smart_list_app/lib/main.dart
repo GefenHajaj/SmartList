@@ -4,7 +4,6 @@ import 'package:smart_list_app/lists_page.dart';
 import 'package:smart_list_app/list_page.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/loading.dart';
-import 'package:smart_list_app/list_page.dart';
 
 void main() {
   runApp(MyApp());

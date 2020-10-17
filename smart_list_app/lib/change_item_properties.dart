@@ -49,7 +49,6 @@ class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _currentUser = widget.user;
     _currentShoppingList = widget.shoppingList;

@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/lists_page.dart';
 import 'package:path_provider/path_provider.dart';

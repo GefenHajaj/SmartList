@@ -34,7 +34,6 @@ class _ListPageState extends State<ListPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     currentUser = widget.user;
     currentShoppingList = widget.shoppingList;
