@@ -2,13 +2,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, HttpResponseBadRequest, \
     HttpResponseServerError
-from django.utils import timezone
-from datetime import datetime
-from django.core.exceptions import ObjectDoesNotExist
 import json
 from .models import *
-import os
-import hashlib
 import traceback
 import decimal
 import random
