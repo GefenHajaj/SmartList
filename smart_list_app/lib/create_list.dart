@@ -71,7 +71,7 @@ class _CreateListPageState extends State<CreateListPage> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 textDirection: TextDirection.rtl,
                 children: [
                   Expanded(
@@ -90,9 +90,10 @@ class _CreateListPageState extends State<CreateListPage> {
                     flex: 2,
                     child: Container(
                       child: TextField(
-                        // textAlignVertical: TextAlignVertical.bottom,
+                        textAlignVertical: TextAlignVertical.bottom,
                         decoration: InputDecoration(
                           counterText: "",
+                          contentPadding: EdgeInsets.only(bottom: 13.0)
                         ),
                         keyboardType: TextInputType.name,
                         textDirection: TextDirection.rtl,

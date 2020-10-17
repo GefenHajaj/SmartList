@@ -17,9 +17,9 @@ class _JoinListPageState extends State<JoinListPage> {
   User _currentUser;
   String _uniqueIDString = "";
 
-  String _buttonText = "הכנס מספר רשימה";
+  String _buttonText = "הכנס מספר רשימה תקין";
   String _enabledButtonText = "המשך";
-  String _disabledButtonText = "הכנס מספר רשימה";
+  String _disabledButtonText = "הכנס מספר רשימה תקין";
 
   Color _enabledButtonColor = Colors.white;
   Color _disabledButtonColor = Colors.grey[350];
@@ -93,19 +93,30 @@ class _JoinListPageState extends State<JoinListPage> {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //crossAxisAlignment: CrossAxisAlignment.end,
+                // crossAxisAlignment: CrossAxisAlignment.end,
                 textDirection: TextDirection.rtl,
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Center(
-                      child: Text(
-                        "מספר רשימה",
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontSize: 20,
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            "מספר רשימה",
+                            textDirection: TextDirection.rtl,
+                            style: TextStyle(
+                              fontSize: 20,
+                            ),
+                          ),
                         ),
-                      ),
+                        Text(
+                          "מספר בן 8 ספרות",
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 12.0
+                          ),
+                        )
+                      ],
                     ),
                   ),
                   Expanded(

@@ -84,8 +84,9 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
                     )),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: IconButton(
+                      iconSize: 40.0,
                         icon: Icon(Icons.ios_share),
                         onPressed: () { shareList(_currentShoppingList); }
                     ),
