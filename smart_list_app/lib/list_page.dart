@@ -306,30 +306,33 @@ class _ListPageState extends State<ListPage> {
             Expanded(flex:6,child: Container(child: getItemsList())),
             Expanded(flex:1,child: Container(height: MediaQuery.of(context).size.height, color: Colors.grey[300],
             child: Center(
-              child: Material(
-                // elevation: 10.0,
-                  borderRadius: BorderRadius.circular(50.0),
-                  color: Colors.transparent,
-                  child: Container(
-                    height: 60.0,
-                    width: 250.0,
-                    decoration: BoxDecoration(
-                        color: Colors.grey,
-                        borderRadius: BorderRadius.circular(50.0)
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(50.0),
-                      onTap: goToSuperMode,
-                      child: Center(
-                        child: Text("מצב סופר",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24.0
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Material(
+                  // elevation: 10.0,
+                    borderRadius: BorderRadius.circular(50.0),
+                    color: Colors.transparent,
+                    child: Container(
+                      height: 60.0,
+                      width: 250.0,
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(50.0)
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(50.0),
+                        onTap: goToSuperMode,
+                        child: Center(
+                          child: Text("מצב סופר",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.0
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
+                    )
+                ),
               ),
             ),))
           ],

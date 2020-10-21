@@ -49,6 +49,7 @@ class _JoinListPageState extends State<JoinListPage> {
   /// Join a list and go to view list page
   void joinList() async {
     if (isUniqueIDValid()) {
+      FocusScope.of(context).requestFocus(new FocusNode());
       setState(() {
         _enabledButtonText = "טוען...";
       });
@@ -78,7 +79,7 @@ class _JoinListPageState extends State<JoinListPage> {
   Widget getBody() {
     return SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -144,7 +145,7 @@ class _JoinListPageState extends State<JoinListPage> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   textDirection: TextDirection.rtl,

@@ -8,9 +8,9 @@ import 'package:smart_list_app/classes.dart';
 import 'package:http/http.dart';
 
 class Api {
-  static final String baseUrl = "10.0.2.2:8000";  // avd
+  // static final String baseUrl = "10.0.2.2:8000";  // avd
   // static final String baseUrl = "172.20.10.2:8000";  // through hotspot
-  // static final String baseUrl = "127.0.0.1:8000";  // for android
+  static final String baseUrl = "192.168.1.31:8000";  // for android
 
   /// Create and register a new user.
   static Future createUser(userInfo) async {

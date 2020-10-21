@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Smart List',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         backgroundColor: Colors.yellow[50],
         scaffoldBackgroundColor: Colors.yellow[50],
@@ -24,14 +25,6 @@ class MyApp extends StatelessWidget {
       initialRoute: '/loading',
       routes: {
         '/loading': (context) => LoadingPage(),
-        '/sign_up': (context) => SignUpPage(),
-        '/lists_page': (context) => ListsPage(user: new User(name: "גפן", pk: 4), dataArrived: false,),
-        '/list_page': (context) => ListPage(
-          dataArrived: false,
-          user: new User(name: "גפן", pk: 4),
-          shoppingList: new ShoppingList(name: "חחח", owner:  new User(name: "גפן", pk: 4),
-          uniqueID: 45854871, pk: 6),
-        ),
       },
     );
   }

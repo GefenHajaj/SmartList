@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/api.dart';
@@ -36,6 +37,7 @@ class _CreateListPageState extends State<CreateListPage> {
   /// If the list name is empty - do nothing.
   void createNewList() async {
     if (_newShoppingListName != "") {
+      FocusScope.of(context).requestFocus(new FocusNode());
       setState(() {
         _buttonText = "טוען...";
       });
@@ -56,7 +58,7 @@ class _CreateListPageState extends State<CreateListPage> {
   Widget getBody() {
     return SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(8.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -69,7 +71,7 @@ class _CreateListPageState extends State<CreateListPage> {
                 ),
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 textDirection: TextDirection.rtl,
                 children: [
@@ -118,7 +120,7 @@ class _CreateListPageState extends State<CreateListPage> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(0, 0, 0, 40),
+                padding: const EdgeInsets.fromLTRB(0, 0, 0, 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   textDirection: TextDirection.rtl,
