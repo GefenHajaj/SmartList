@@ -310,9 +310,6 @@ class ShoppingListViews:
                 user_pk = request.GET['user_pk']
                 list_pk = request.GET['list_pk']
 
-                # Get the user who asked for the info
-                user = get_object_or_404(User, pk=user_pk)
-
                 # Get the shopping list
                 shopping_list = get_object_or_404(ShoppingList,
                                                   pk=list_pk)

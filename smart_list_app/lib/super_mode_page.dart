@@ -177,12 +177,20 @@ class _SuperModePageState extends State<SuperModePage> {
                 ),
                 backgroundColor: _currentItems[index].isBought ? Colors.black54 : Colors.blue[200],
               ),
-              title: Text("${_currentItems[index].product.name}${_currentItems[index].isBought ? " - נקנה" : ""}"),
+              title: Text("${_currentItems[index].product.name}${_currentItems[index].isBought ? " - נקנה" : ""}",
+                style: TextStyle(
+                  fontWeight: FontWeight.bold
+                ),
+              ),
               subtitle: Text(
                   "נוסף על ידי ${_currentItems[index].userAdded.name}"),
               trailing: Text(
                   "${_currentItems[index].amount} ${_currentItems[index]
-                      .getUnitsText()}"),
+                      .getUnitsText()}",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold
+                ),
+              ),
             ),
           );
         },
