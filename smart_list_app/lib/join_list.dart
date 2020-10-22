@@ -17,12 +17,14 @@ class _JoinListPageState extends State<JoinListPage> {
   User _currentUser;
   String _uniqueIDString = "";
 
-  String _buttonText = "הכנס מספר רשימה תקין";
+  String _buttonText = "הכנס מספר רשימה";
   String _enabledButtonText = "המשך";
-  String _disabledButtonText = "הכנס מספר רשימה תקין";
+  String _disabledButtonText = "הכנס מספר רשימה";
 
   Color _enabledButtonColor = Colors.white;
   Color _disabledButtonColor = Colors.grey[350];
+
+  TextEditingController _listNumController = new TextEditingController();
 
   @override
   void initState() {
@@ -67,10 +69,16 @@ class _JoinListPageState extends State<JoinListPage> {
       }
       else {
         setState(() {
-          _buttonText = "שגיאה";
+          _buttonText = "מספר רשימה לא תקין";
           _enabledButtonColor = Colors.red;
         });
-       goToListsPage();
+        Future.delayed(const Duration(seconds: 1), () {
+          _listNumController.text = "";
+          setState(() {
+            _buttonText = _disabledButtonText;
+            _enabledButtonColor = _disabledButtonColor;
+          });
+        });
       }
     }
   }
@@ -123,6 +131,7 @@ class _JoinListPageState extends State<JoinListPage> {
                     flex: 2,
                     child: Container(
                       child: TextField(
+                        controller: _listNumController,
                         // textAlignVertical: TextAlignVertical.bottom,
                         decoration: InputDecoration(
                           counterText: "",
