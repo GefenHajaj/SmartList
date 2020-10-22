@@ -119,12 +119,15 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                     flex: 2,
                     child: Container(
                       child: TextField(
-                        // textAlignVertical: TextAlignVertical.bottom,
+                        textAlignVertical: TextAlignVertical.bottom,
                         decoration: InputDecoration(
                           counterText: "",
                         ),
                         keyboardType: TextInputType.name,
                         textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                          fontSize: 20.0
+                        ),
                         maxLength: 50,
                         onChanged: (input) {
                           setState(() {

@@ -60,6 +60,20 @@ class _ListPageState extends State<ListPage> {
             child: Center(
               child: FlatButton(
                 child: Text(
+                  "ערוך מוצר",
+                  textDirection: TextDirection.rtl,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  goToChangeItemProperties(item);
+                },
+              ),
+            ),
+          ),
+          PopupMenuItem(
+            child: Center(
+              child: FlatButton(
+                child: Text(
                   "מחק מוצר",
                   textDirection: TextDirection.rtl,
                 ),
@@ -190,16 +204,22 @@ class _ListPageState extends State<ListPage> {
                           onLongPress: () {
                             showPopUpMenu(currentItems[index], overlay);
                           },
-                          onTap: () {
-                            goToChangeItemProperties(currentItems[index]);
-                          },
                           leading: CircleAvatar(child: Text(currentUserList
                               .name[0]), backgroundColor: currentColor,),
-                          title: Text(currentItems[index].product.name),
+                          title: Text(
+                              currentItems[index].product.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                           subtitle: Text("נוסף על ידי ${currentUserList.name}"),
                           trailing: Text(
                               "${currentItems[index].amount} ${currentItems[index]
-                                  .getUnitsText()}"),
+                                  .getUnitsText()}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -257,16 +277,22 @@ class _ListPageState extends State<ListPage> {
                   onLongPress: () {
                     showPopUpMenu(currentItems[index], overlay);
                   },
-                  onTap: () {
-                    goToChangeItemProperties(currentItems[index]);
-                  },
                   leading: CircleAvatar(child: Text(currentUserList
                       .name[0]), backgroundColor: currentColor,),
-                  title: Text(currentItems[index].product.name),
+                  title: Text(
+                      currentItems[index].product.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   subtitle: Text("נוסף על ידי ${currentUserList.name}"),
                   trailing: Text(
                       "${currentItems[index].amount} ${currentItems[index]
-                          .getUnitsText()}"),
+                          .getUnitsText()}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             );
