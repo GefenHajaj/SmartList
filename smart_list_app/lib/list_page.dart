@@ -62,6 +62,9 @@ class _ListPageState extends State<ListPage> {
                 child: Text(
                   "ערוך מוצר",
                   textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
@@ -76,6 +79,9 @@ class _ListPageState extends State<ListPage> {
                 child: Text(
                   "מחק מוצר",
                   textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
                 onPressed: () {
                   deleteItem(item);
@@ -311,10 +317,13 @@ class _ListPageState extends State<ListPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
               child: Directionality(
                 textDirection: TextDirection.rtl,
                 child: TextFormField(
+                  style: TextStyle(
+                      fontSize: 18.0
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'חלב',
                     labelText: 'מה לחפש?',
@@ -349,7 +358,7 @@ class _ListPageState extends State<ListPage> {
                         borderRadius: BorderRadius.circular(50.0),
                         onTap: goToSuperMode,
                         child: Center(
-                          child: Text("מצב סופר",
+                          child: Text("מצב קניות",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24.0

@@ -17,7 +17,7 @@ class _SignUpPageState extends State<SignUpPage> {
   String warningButtonText = "יש למלא שם משתמש וססמא";
 
   Color buttonColor = Colors.grey[350];
-  Color normalButtonColor = Colors.grey[600];
+  Color normalButtonColor = Colors.green[200];
   Color warningButtonColor = Colors.grey[350];
   Color successButtonColor = Colors.green;
 
@@ -103,6 +103,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     child: Text(
                         "שם משתמש",
                       textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontSize: 18.0
+                      ),
                     )
                 ),
               ),
@@ -110,6 +113,9 @@ class _SignUpPageState extends State<SignUpPage> {
                 flex: 2,
                 child: Container(
                   child: TextField(
+                    style: TextStyle(
+                      fontSize: 18.0
+                    ),
                     decoration: InputDecoration(
                       counterText: "",
                       border: new OutlineInputBorder(
@@ -153,7 +159,11 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                   color: buttonColor,
                   child: Center(child: Text(buttonText,
-                  textDirection: TextDirection.rtl,))),
+                  textDirection: TextDirection.rtl,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold
+                    ),
+                  ))),
             ]),
           )
         ],

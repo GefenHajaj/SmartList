@@ -239,6 +239,9 @@ class _SuperModePageState extends State<SuperModePage> {
                     child: Text("ביטול\nוחזרה",
                       textDirection: TextDirection.rtl,
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold
+                      ),
                     ),
                     shape: ContinuousRectangleBorder(side: BorderSide(
                         color: Colors.black54,
@@ -254,6 +257,9 @@ class _SuperModePageState extends State<SuperModePage> {
                     child: Text("חזור\nונקה מסומן",
                       textDirection: TextDirection.rtl,
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold
+                      ),
                     ),
                     shape: ContinuousRectangleBorder(side: BorderSide(
                         color: Colors.black54,
@@ -269,6 +275,9 @@ class _SuperModePageState extends State<SuperModePage> {
                     child: Text("נקה את\nכל הרשימה",
                       textDirection: TextDirection.rtl,
                       textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold
+                      ),
                     ),
                     shape: ContinuousRectangleBorder(side: BorderSide(
                         color: Colors.black54,

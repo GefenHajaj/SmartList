@@ -226,7 +226,11 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: _productName != "" ? addItemToList : null,
                       child: Text(_buttonText,
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,
@@ -239,7 +243,11 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: () { Navigator.of(context).pop(); },
                       child: Text("ביטול",
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,

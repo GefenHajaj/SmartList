@@ -13,6 +13,12 @@ class MyApp extends StatelessWidget {
       title: 'Smart List',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        textTheme: TextTheme(
+          bodyText2: TextStyle(
+            fontWeight: FontWeight.bold
+          ),
+        ),
+        fontFamily: 'Rubik',
         backgroundColor: Colors.yellow[50],
         scaffoldBackgroundColor: Colors.yellow[50],
         primarySwatch: Colors.blue,

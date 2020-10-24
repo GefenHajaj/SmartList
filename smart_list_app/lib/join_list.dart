@@ -131,6 +131,9 @@ class _JoinListPageState extends State<JoinListPage> {
                     flex: 2,
                     child: Container(
                       child: TextField(
+                        style: TextStyle(
+                            fontSize: 20.0
+                        ),
                         controller: _listNumController,
                         // textAlignVertical: TextAlignVertical.bottom,
                         decoration: InputDecoration(
@@ -167,7 +170,11 @@ class _JoinListPageState extends State<JoinListPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: isUniqueIDValid() ? joinList : null,
                       child: Text(_buttonText,
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,
@@ -180,7 +187,11 @@ class _JoinListPageState extends State<JoinListPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: () { Navigator.of(context).pop(); },
                       child: Text("ביטול",
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,

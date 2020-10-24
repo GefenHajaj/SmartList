@@ -156,6 +156,9 @@ class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
                     flex: 2,
                     child: Container(
                       child: TextFormField(
+                        style: TextStyle(
+                            fontSize: 20.0
+                        ),
                         // textAlignVertical: TextAlignVertical.bottom,
                         initialValue: _newName,
                         decoration: InputDecoration(
@@ -259,7 +262,11 @@ class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: hasAnythingChanged() && _newName != "" ? changeItemProperties : null,
                       child: Text(_buttonText,
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,
@@ -272,7 +279,11 @@ class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: () { Navigator.of(context).pop(); },
                       child: Text("ביטול",
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,

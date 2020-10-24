@@ -94,6 +94,9 @@ class _ListsPageState extends State<ListsPage> {
                 child: Text(
                   "מחק רשימה",
                   textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
                 onPressed: () {
                     deleteList(shoppingList);
@@ -107,6 +110,9 @@ class _ListsPageState extends State<ListsPage> {
                 child: Text(
                   "שתף רשימה",
                   textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
                 onPressed: () {
                     shareList(shoppingList);
@@ -136,7 +142,11 @@ class _ListsPageState extends State<ListsPage> {
           onPressed: () {
             goToList(shoppingList);
           },
-          child: Text(shoppingList.name),
+          child: Text(shoppingList.name,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16
+          ),),
           shape: RoundedRectangleBorder(
             side: BorderSide(
               color: Colors.black54,
@@ -243,7 +253,11 @@ class _ListsPageState extends State<ListsPage> {
                     icon: Icon(Icons.add_shopping_cart),
                     onPressed: goToCreateNewShoppingListPage,
                     label: Text("יצירת\nרשימה",
-                      textDirection: TextDirection.rtl,),
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold
+                      ),
+                    ),
                     shape: ContinuousRectangleBorder(side: BorderSide(
                         color: Colors.black54,
                         width: 3,
@@ -257,7 +271,11 @@ class _ListsPageState extends State<ListsPage> {
                     icon: Icon(Icons.person_add),
                     onPressed: goToJoinList,
                     label: Text("הצטרף\nלרשימה",
-                    textDirection: TextDirection.rtl,),
+                    textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
                     shape: ContinuousRectangleBorder(side: BorderSide(
                         color: Colors.black54,
                         width: 3,

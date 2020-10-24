@@ -75,7 +75,11 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
                     padding: EdgeInsets.symmetric(vertical: 16.0),
                     onPressed: goBackToListsPage,
                     child: Text("אישור",
-                      textDirection: TextDirection.rtl,),
+                      textDirection: TextDirection.rtl,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold
+                      ),
+                    ),
                     shape: ContinuousRectangleBorder(side: BorderSide(
                         color: Colors.black54,
                         width: 3,

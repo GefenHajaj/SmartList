@@ -78,11 +78,14 @@ class _CreateListPageState extends State<CreateListPage> {
                   Expanded(
                     flex: 1,
                     child: Center(
-                      child: Text(
-                        "שם רשימה",
-                        textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontSize: 20,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Text(
+                          "שם רשימה",
+                          textDirection: TextDirection.rtl,
+                          style: TextStyle(
+                            fontSize: 20,
+                          ),
                         ),
                       ),
                     ),
@@ -91,6 +94,9 @@ class _CreateListPageState extends State<CreateListPage> {
                     flex: 2,
                     child: Container(
                       child: TextField(
+                        style: TextStyle(
+                            fontSize: 20.0
+                        ),
                         textAlignVertical: TextAlignVertical.bottom,
                         decoration: InputDecoration(
                           counterText: "",
@@ -133,7 +139,11 @@ class _CreateListPageState extends State<CreateListPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: _isButtonEnabled ? createNewList : null,
                       child: Text(_buttonText,
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,
@@ -146,7 +156,11 @@ class _CreateListPageState extends State<CreateListPage> {
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
                       onPressed: () { Navigator.of(context).pop(); },
                       child: Text("ביטול",
-                        textDirection: TextDirection.rtl,),
+                        textDirection: TextDirection.rtl,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
                       shape: ContinuousRectangleBorder(side: BorderSide(
                           color: Colors.black54,
                           width: 3,

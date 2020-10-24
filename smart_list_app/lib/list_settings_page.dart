@@ -72,7 +72,11 @@ class _ListSettingsPageState extends State<ListSettingsPage> {
                         leading: CircleAvatar(
                           child: Icon(Icons.person),
                           backgroundColor: Colors.blue[100],),
-                        title: Text(_listMembersData[index].name),
+                        title: Text(_listMembersData[index].name,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold
+                          ),
+                        ),
                         trailing: IconButton(
                             onPressed: () {
                               removeUserFromTheList(_listMembersData[index]);
@@ -152,7 +156,11 @@ class _ListSettingsPageState extends State<ListSettingsPage> {
                   goBack();
                 },
                 child: Text("אישור",
-                  textDirection: TextDirection.rtl,),
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
                 shape: ContinuousRectangleBorder(side: BorderSide(
                     color: Colors.black54,
                     width: 3,
