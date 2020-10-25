@@ -155,7 +155,14 @@ class UserViews:
                     ShoppingList,
                     unique_id=info['list_unique_id']
                 )
-                shopping_list.editors.add(user)
+
+                # Make sure the user is not already there.
+                all_users = shopping_list.editors.all()
+                all_users_pks = [user.pk for user in all_users]
+                all_users_pks.append(shopping_list.owner.pk)
+                if not info['user_pk'] in all_users_pks:
+                    shopping_list.editors.add(user)
+
                 return HttpResponse(json.dumps({
                     "name": shopping_list.name,
                     "pk": shopping_list.pk,

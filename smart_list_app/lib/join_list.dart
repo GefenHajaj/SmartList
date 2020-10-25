@@ -53,19 +53,38 @@ class _JoinListPageState extends State<JoinListPage> {
     if (isUniqueIDValid()) {
       FocusScope.of(context).requestFocus(new FocusNode());
       setState(() {
-        _enabledButtonText = "טוען...";
+        _buttonText = "טוען...";
       });
       var newShoppingList = await Api.joinList(_currentUser, _uniqueIDString);
+      List<int> listPks = new List<int>();
+      for (ShoppingList sp in _currentUser.shoppingLists) {
+        listPks.add(sp.pk);
+      }
       if (newShoppingList is ShoppingList) {
-        setState(() {
-          _buttonText = "יש!";
-          _enabledButtonColor = Colors.green;
-        });
-        Navigator.of(context).push(MaterialPageRoute<Null>(
-            builder: (BuildContext context) {
-              return ViewListDetailsPage(
-                  user: _currentUser, newShoppingList: newShoppingList);
-            }));
+        if (listPks.contains(newShoppingList.pk)) {
+          setState(() {
+            _buttonText = "כבר הצטרפת לרשימה";
+            _enabledButtonColor = Colors.red;
+          });
+          Future.delayed(const Duration(seconds: 1), () {
+            _listNumController.text = "";
+            setState(() {
+              _buttonText = _disabledButtonText;
+              _enabledButtonColor = _disabledButtonColor;
+            });
+          });
+        }
+        else {
+          setState(() {
+            _buttonText = "יש!";
+            _enabledButtonColor = Colors.green;
+          });
+          Navigator.of(context).push(MaterialPageRoute<Null>(
+              builder: (BuildContext context) {
+                return ViewListDetailsPage(
+                    user: _currentUser, newShoppingList: newShoppingList);
+              }));
+        }
       }
       else {
         setState(() {
