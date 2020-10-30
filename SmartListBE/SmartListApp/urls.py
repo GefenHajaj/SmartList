@@ -33,6 +33,12 @@ urlpatterns = [
     ),
 
     path(
+        'user/connect/',
+        views.UserViews.connect,
+        name="connect"
+    ),
+
+    path(
         'list/objects/',
         views.ShoppingListViews.get_all_objects,
         name="get_all_objects"

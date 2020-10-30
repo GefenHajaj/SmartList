@@ -3,6 +3,7 @@ from django.db import models
 
 class User(models.Model):
     name = models.CharField(max_length=50)
+    secret = models.CharField(max_length=45)
     creation_time = models.DateTimeField(auto_now_add=True)
     last_connected = models.DateTimeField(auto_now=True)
 

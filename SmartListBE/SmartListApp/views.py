@@ -7,6 +7,8 @@ from .models import *
 import traceback
 import decimal
 import random
+import hashlib
+import time
 
 
 class UserViews:
@@ -22,7 +24,8 @@ class UserViews:
         if request.method == 'GET':
             try:
                 user_pk = request.GET['pk']
-                user = get_object_or_404(User, pk=user_pk)
+                user_secret = request.GET['secret']
+                user = get_object_or_404(User, pk=user_pk, secret=user_secret)
                 return HttpResponse(json.dumps({
                     "pk": user.pk,
                     "name": user.name,
@@ -54,7 +57,8 @@ class UserViews:
         if request.method == 'GET':
             try:
                 user_pk = request.GET['pk']
-                user = get_object_or_404(User, pk=user_pk)
+                user_secret = request.GET['secret']
+                user = get_object_or_404(User, pk=user_pk, secret=user_secret)
 
                 user_owned_lists = user.owned_lists.all()
                 user_editor_lists = user.shoppinglist_set.all()
@@ -99,14 +103,18 @@ class UserViews:
         if request.method == 'POST':
             try:
                 user_info = json.loads(request.body)
-
+                secret = hashlib.sha1(
+                    (user_info['name'] + time.ctime() + "secret").encode()
+                ).hexdigest()
                 # Create the new user:
                 new_user = User(
                     name=user_info['name'],
+                    secret=secret
                 )
                 new_user.save()
                 return HttpResponse(json.dumps({
                     "name": new_user.name,
+                    "secret": new_user.secret,
                     "pk": new_user.pk
                 }, ensure_ascii=False))
 
@@ -127,16 +135,35 @@ class UserViews:
     @staticmethod
     @csrf_exempt
     def connect(request):
-        return HttpResponseServerError(json.dumps(
-            {"error": "this function is not yet ready"}
-        ))
+        # Make sure the request is a POST
+        if request.method == 'POST':
+            try:
+                user_info = json.loads(request.body)
+                # Get the user
+                user = get_object_or_404(
+                    User,
+                    pk=user_info['pk'],
+                    secret=user_info['secret']
+                )
+                user.save()
 
-    @staticmethod
-    @csrf_exempt
-    def update_user_info(request):
-        return HttpResponseServerError(json.dumps(
-            {"error": "this function is not yet ready"}
-        ))
+                return HttpResponse(json.dumps({
+                    "success": "user {} logged in".format(user.name)
+                }, ensure_ascii=False))
+
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e,
+                                                                     traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(json.dumps(
+                {"error": "connect(): should be a post request"}
+            ))
 
     @staticmethod
     @csrf_exempt
@@ -150,7 +177,9 @@ class UserViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
-                user = get_object_or_404(User, pk=info['user_pk'])
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
                 shopping_list = get_object_or_404(
                     ShoppingList,
                     unique_id=info['list_unique_id']
@@ -196,18 +225,38 @@ class UserViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
-                # TODO: Check that everything is valid
 
+                removing_user = get_object_or_404(
+                    User,
+                    pk=info['removing_pk'],
+                    secret=info['removing_secret'])
                 user = get_object_or_404(User, pk=info['remove_user_pk'])
                 shopping_list = get_object_or_404(ShoppingList,
                                                   pk=info['shopping_list_pk'])
-                shopping_list.editors.remove(user)
-                return HttpResponse(json.dumps({
-                    "success": "user {} removed from shopping list {}".format(
-                        user.pk,
-                        shopping_list.pk
-                    )
-                }))
+
+                # Make sure the user is authorized
+                editors_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks = editors_pks + [shopping_list.owner.pk]
+                if removing_user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                if user.pk in editors_pks:
+                    shopping_list.editors.remove(user)
+                    shopping_list.save()
+                    return HttpResponse(json.dumps({
+                        "success": "user {} removed from shopping list {}".format(user.pk, shopping_list.pk)
+                    }))
+                elif user.pk == shopping_list.owner.pk:
+                    return HttpResponse(json.dumps({
+                        "success": "cannot remove owner".format(
+                            user.pk, shopping_list.pk)
+                    }))
+                else:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "user not in list"}
+                    ))
             except KeyError:
                 return HttpResponseBadRequest(json.dumps(
                     {"error": "not enough data supplied"}
@@ -235,7 +284,20 @@ class ShoppingListViews:
         if request.method == 'GET':
             try:
                 list_pk = request.GET['pk']
+                user = get_object_or_404(
+                    User,
+                    pk=request.GET['user_pk'],
+                    secret=request.GET['user_secret'])
                 shopping_list = get_object_or_404(ShoppingList, pk=list_pk)
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 all_objects = shopping_list.listobject_set.all()
                 objects_info = {}
                 for obj in all_objects:
@@ -276,6 +338,18 @@ class ShoppingListViews:
             try:
                 list_pk = request.GET['pk']
                 shopping_list = get_object_or_404(ShoppingList, pk=list_pk)
+                user = get_object_or_404(
+                    User,
+                    pk=request.GET['user_pk'],
+                    secret=request.GET['user_secret'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
 
                 shopping_list_info = {
                     "pk": shopping_list.pk,
@@ -315,11 +389,23 @@ class ShoppingListViews:
         if request.method == 'GET':
             try:
                 user_pk = request.GET['user_pk']
+                user_secret = request.GET['user_secret']
                 list_pk = request.GET['list_pk']
 
-                # Get the shopping list
-                shopping_list = get_object_or_404(ShoppingList,
-                                                  pk=list_pk)
+                # Get the shopping list and the user
+                shopping_list = get_object_or_404(ShoppingList, pk=list_pk)
+                user = get_object_or_404(
+                    User,
+                    pk=user_pk,
+                    secret=user_secret)
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
 
                 # Get the list of people in that list
                 editors = shopping_list.editors.all()
@@ -327,7 +413,7 @@ class ShoppingListViews:
 
                 final_data = {}
 
-                # Add al the members of the list to the final data
+                # Add all the members of the list to the final data
                 for editor in editors:
                     if str(editor.pk) != user_pk:
                         final_data[editor.pk] = {
@@ -369,6 +455,23 @@ class ShoppingListViews:
             try:
                 info = json.loads(request.body)
 
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 # Check that product exists - if not, create it
                 product_name = info['product_name']
                 if not product_name:
@@ -378,13 +481,6 @@ class ShoppingListViews:
                     product.save()
                 else:
                     product = Product.objects.get(name=product_name)
-
-                # Get the user who added the object
-                user = get_object_or_404(User, pk=info['user_pk'])
-
-                # Get the shopping list to add the item to
-                shopping_list = get_object_or_404(ShoppingList,
-                                                  pk=info['list_pk'])
 
                 # Create the new item we'll add to the list
                 list_item = ListObject(
@@ -423,6 +519,31 @@ class ShoppingListViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Make sure item is part of list
+                all_items_pks = [item.pk for item in shopping_list.listobject_set.all()]
+                if info['pk'] not in all_items_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 item = get_object_or_404(ListObject, pk=info['pk'])
                 item.delete()
                 return HttpResponse(json.dumps({
@@ -456,6 +577,32 @@ class ShoppingListViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Make sure item is part of list
+                all_items_pks = [item.pk for item in
+                                 shopping_list.listobject_set.all()]
+                if info['pk'] not in all_items_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 item = get_object_or_404(ListObject, pk=info['pk'])
                 item.is_bought = True
                 item.save()
@@ -490,6 +637,32 @@ class ShoppingListViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Make sure item is part of list
+                all_items_pks = [item.pk for item in
+                                 shopping_list.listobject_set.all()]
+                if info['pk'] not in all_items_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 item = get_object_or_404(ListObject, pk=info['pk'])
                 item.is_bought = False
                 item.save()
