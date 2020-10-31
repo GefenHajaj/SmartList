@@ -51,7 +51,7 @@ class _SuperModePageState extends State<SuperModePage> {
     for (ShoppingListObject item in currentItems) {
       if (item.isBought) {
         item.isBought = false;
-        Api.unbuyShoppingListItem(_currentUser, item);
+        Api.unbuyShoppingListItem(_currentUser, _currentShoppingList, item);
       }
     }
     Navigator.of(context).pop();
@@ -66,7 +66,7 @@ class _SuperModePageState extends State<SuperModePage> {
     // Delete all items that were bought.
     for (ShoppingListObject item in _currentShoppingList.items) {
       if (item.isBought) {
-        Api.deleteShoppingListItem(_currentUser, item);
+        Api.deleteShoppingListItem(_currentUser, _currentShoppingList, item);
       }
       else {
         temp.add(item);
@@ -98,7 +98,7 @@ class _SuperModePageState extends State<SuperModePage> {
 
   /// Update data - every 5 seconds, query the API and get the updated list
   void updateList() async {
-     var updatedItems = await Api.getShoppingListItems(_currentShoppingList);
+     var updatedItems = await Api.getShoppingListItems(_currentUser, _currentShoppingList);
      setState(() {
        _currentShoppingList.items = updatedItems;
      });
@@ -132,13 +132,13 @@ class _SuperModePageState extends State<SuperModePage> {
 
   void buyOrUnbuyItem(ShoppingListObject item) {
     if (item.isBought) {
-      Api.unbuyShoppingListItem(_currentUser, item);
+      Api.unbuyShoppingListItem(_currentUser, _currentShoppingList, item);
       setState(() {
         item.isBought = false;
       });
     }
     else {
-      Api.buyShoppingListItem(_currentUser, item);
+      Api.buyShoppingListItem(_currentUser, _currentShoppingList, item);
       setState(() {
         item.isBought = true;
       });

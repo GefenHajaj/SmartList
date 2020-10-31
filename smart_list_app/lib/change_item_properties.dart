@@ -78,7 +78,7 @@ class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
       _currentItem.product.name = _newName;
       _currentItem.amount = _newAmountNumber + _newAmountFriction;
       _currentItem.units = _newUnits == 0 ? "units" : "kg";
-      await Api.changeListItem(_currentUser, _currentItem);
+      await Api.changeListItem(_currentUser, _currentShoppingList, _currentItem);
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (BuildContext context) => ListPage(user: _currentUser, shoppingList: _currentShoppingList, dataArrived: true)),
             (Route<dynamic> route) => shouldPop(),

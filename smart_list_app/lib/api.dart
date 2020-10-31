@@ -18,17 +18,29 @@ class Api {
     final Response response =  await post(url, body: jsonEncode(userInfo));
     final userMap = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      return new User(name: userMap['name'], pk: userMap['pk']);
+      return new User(name: userMap['name'], pk: userMap['pk'], secret: userMap['secret']);
     }
     else {
       return new Error(errorStatement: userMap['error']);
     }
   }
 
+  /// Tell the server the user connected.
+  static void connect(User user) async {
+    final url = Uri.http(baseUrl, "/smartlist/user/connect/");
+    String body = json.encode({
+      "pk": user.pk,
+      "secret": user.secret
+    });
+    // Just send it...
+    post(url, body: body);
+  }
+
   /// Gets all the user lists and adds them to the user object
   static Future getUserLists(User user) async {
     final getParams = {
-      "pk": user.pk.toString()
+      "pk": user.pk.toString(),
+      "secret": user.secret
     };
     List<ShoppingList> shoppingLists = new List<ShoppingList>();
     final url = Uri.http(baseUrl, "smartlist/user/lists/", getParams);
@@ -66,9 +78,11 @@ class Api {
   }
 
 
-  static Future<List<ShoppingListObject>> getShoppingListItems(ShoppingList shoppingList) async {
+  static Future<List<ShoppingListObject>> getShoppingListItems(User user, ShoppingList shoppingList) async {
     final getParams = {
-      "pk": shoppingList.pk.toString()
+      "pk": shoppingList.pk.toString(),
+      "user_pk": user.pk.toString(),
+      "user_secret": user.secret
     };
     List<ShoppingListObject> shoppingListItems = new List<ShoppingListObject>();
     final url = Uri.http(baseUrl, "smartlist/list/objects/", getParams);
@@ -107,6 +121,7 @@ class Api {
     final url = Uri.http(baseUrl, "smartlist/list/create/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
       "name": name
     });
     final Response response = await post(url, body: body);
@@ -133,6 +148,7 @@ class Api {
     final url = Uri.http(baseUrl, "smartlist/user/addlist/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
       "list_unique_id": uniqueIDInt
     });
     final Response response = await post(url, body: body);
@@ -166,6 +182,7 @@ class Api {
     String body = json.encode({
       "product_name": productName,
       "user_pk": user.pk,
+      "user_secret": user.secret,
       "list_pk": shoppingList.pk,
       "units": units,
       "amount": amount
@@ -185,13 +202,16 @@ class Api {
 
   /// Change an item - the amount, the unit or the name.
   /// returns null on success and error on failure.
-  static Future changeListItem(User user, ShoppingListObject item) async {
+  static Future changeListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
     final url = Uri.http(baseUrl, "smartlist/item/change/");
     String body = json.encode({
       "pk": item.pk,
       "amount": item.amount,
       "units": item.units,
-      "name": item.product.name
+      "name": item.product.name,
+      "user_pk": user.pk,
+      "user_secret": user.secret,
+      "list_pk": shoppingList.pk
     });
     final Response response = await post(url, body: body);
     final responseMap = jsonDecode(response.body);
@@ -208,6 +228,7 @@ class Api {
     final url = Uri.http(baseUrl, "smartlist/list/delete/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
       "pk": shoppingList.pk
     });
     final Response response = await post(url, body: body);
@@ -221,10 +242,12 @@ class Api {
     }
   }
 
-  static Future buyShoppingListItem(User user, ShoppingListObject item) async {
+  static Future buyShoppingListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
     final url = Uri.http(baseUrl, "smartlist/list/buy/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
+      "list_pk": shoppingList.pk,
       "pk": item.pk
     });
     final Response response = await post(url, body: body);
@@ -238,10 +261,12 @@ class Api {
     }
   }
 
-  static Future unbuyShoppingListItem(User user, ShoppingListObject item) async {
+  static Future unbuyShoppingListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
     final url = Uri.http(baseUrl, "smartlist/list/unbuy/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
+      "list_pk": shoppingList.pk,
       "pk": item.pk
     });
     final Response response = await post(url, body: body);
@@ -255,10 +280,12 @@ class Api {
     }
   }
 
-  static Future deleteShoppingListItem(User user, ShoppingListObject item) async {
+  static Future deleteShoppingListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
     final url = Uri.http(baseUrl, "smartlist/list/remove/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
+      "list_pk": shoppingList.pk,
       "pk": item.pk
     });
     final Response response = await post(url, body: body);
@@ -276,6 +303,7 @@ class Api {
     final url = Uri.http(baseUrl, "smartlist/list/wipe/");
     String body = json.encode({
       "user_pk": user.pk,
+      "user_secret": user.secret,
       "pk": shoppingList.pk
     });
     final Response response = await post(url, body: body);
@@ -292,6 +320,7 @@ class Api {
   static Future getShoppingListMembers(User user, ShoppingList shoppingList) async {
     final getParams = {
       "user_pk": user.pk.toString(),
+      "user_secret": user.secret,
       "list_pk": shoppingList.pk.toString()
     };
     List<User> listMembers = new List<User>();
@@ -315,7 +344,8 @@ class Api {
   static Future removeUserFromList(User user, User userToRemove, ShoppingList shoppingList) async {
     final url = Uri.http(baseUrl, "smartlist/user/exitlist/");
     String body = json.encode({
-      "user_pk": user.pk,
+      "removing_pk": user.pk,
+      "removing_secret": user.secret,
       "remove_user_pk": userToRemove.pk,
       "shopping_list_pk": shoppingList.pk
     });

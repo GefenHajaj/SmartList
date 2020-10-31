@@ -39,7 +39,7 @@ class _ListPageState extends State<ListPage> {
     currentShoppingList = widget.shoppingList;
     dataArrived = widget.dataArrived;
     if (!dataArrived)
-      items = Api.getShoppingListItems(currentShoppingList);
+      items = Api.getShoppingListItems(currentUser, currentShoppingList);
   }
 
   /// Save the location of press
@@ -98,7 +98,7 @@ class _ListPageState extends State<ListPage> {
     Navigator.of(context).pop();
     Future.delayed(
         Duration(milliseconds: 200), () {
-      Api.deleteShoppingListItem(currentUser, item);
+      Api.deleteShoppingListItem(currentUser, currentShoppingList, item);
       setState(() {
         currentShoppingList.items.remove(item);
       });

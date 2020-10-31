@@ -56,13 +56,15 @@ class _SignUpPageState extends State<SignUpPage> {
     createdUser = await Api.createUser({"name": name});
     print(createdUser.name);
     print(createdUser.pk);
+    print(createdUser.secret);
 
     // Save user data locally
     final directory = await getApplicationDocumentsDirectory();
     final file = File('${directory.path}/user_info.txt');
     file.writeAsString(jsonEncode({
       "name": createdUser.name,
-      "pk": createdUser.pk
+      "pk": createdUser.pk,
+      "secret": createdUser.secret
     }));
     setState(() {
       buttonText = "נרשמנו!";

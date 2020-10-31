@@ -1,9 +1,10 @@
 class User {
   String name;
   int pk;
+  String secret;
   List<ShoppingList> shoppingLists;
 
-  User({this.name, this.pk}) {
+  User({this.name, this.pk, this.secret}) {
     this.shoppingLists = new List<ShoppingList>();
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/lists_page.dart';
+import 'package:smart_list_app/api.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
@@ -26,12 +27,13 @@ class _LoadingPageState extends State<LoadingPage> {
     File userFile = File('${directory.path}/user_info.txt');
     if (userFile.existsSync()) {
       print("Registered");
-      // Todo: Call the API and tell him that the user connected
       Map userInfo = json.decode(await userFile.readAsString());
       print ('${userInfo['name']} - ${userInfo['pk']}');
+      User user = new User(name: userInfo['name'], pk: userInfo['pk'], secret: userInfo['secret']);
+      Api.connect(user);
       Navigator.of(context).push(MaterialPageRoute<Null>(
           builder: (BuildContext context) {
-            return ListsPage(user: new User(name: userInfo['name'], pk: userInfo['pk']), dataArrived: false,);
+            return ListsPage(user: user, dataArrived: false,);
           }));
     }
     else
