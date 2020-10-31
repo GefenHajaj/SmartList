@@ -18,5 +18,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('smartlist/', include('SmartListApp.urls')),
-    path('admin/', admin.site.urls),
+    path('smartlistadmin/', admin.site.urls),
 ]
