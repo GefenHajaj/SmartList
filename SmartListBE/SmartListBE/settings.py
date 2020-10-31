@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
 from pathlib import Path
 import os
 
@@ -24,9 +23,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'o0+gyll5qyofl1qll9wb+fetbtx&m31z)malz0n3t$wo&on4px'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+raise Exception("Edit this")
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.31']
+raise Exception("Edit this")
+ALLOWED_HOSTS = ['127.0.0.1', '192.168.1.31', '10.0.2.2']
 
 
 # Application definition
@@ -75,6 +76,7 @@ WSGI_APPLICATION = 'SmartListBE.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+raise Exception("Edit this")
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -125,6 +127,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
+raise Exception("Edit this")
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
