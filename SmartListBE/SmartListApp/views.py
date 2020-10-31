@@ -698,13 +698,25 @@ class ShoppingListViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
-                # TODO: Make sure the user who delete's the shopping list is
-                # The owner or one of the editors of the list.
                 shopping_list = get_object_or_404(ShoppingList, pk=info['pk'])
+
+                # Get the user who wants to delete the list
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
 
                 # Delete all the items in the list
                 for item in shopping_list.listobject_set.all():
                     item.delete()
+
 
                 # Delete the list
                 shopping_list.delete()
@@ -739,7 +751,9 @@ class ShoppingListViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
-                created_user = get_object_or_404(User, pk=info['user_pk'])
+                created_user = get_object_or_404(User,
+                                                 pk=info['user_pk'],
+                                                 secret=info['user_secret'])
 
                 # Generate an 8-digit random unique id
                 unique_id = str(random.randint(10000000, 100000000))
@@ -788,6 +802,19 @@ class ShoppingListViews:
                 info = json.loads(request.body)
                 shopping_list = get_object_or_404(ShoppingList, pk=info['pk'])
 
+                # Get the user who wants to delete the list
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 # Delete all the items in the list
                 for item in shopping_list.listobject_set.all():
                     item.delete()
@@ -825,8 +852,35 @@ class ListObjectViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Make sure item is part of list
+                all_items_pks = [item.pk for item in
+                                 shopping_list.listobject_set.all()]
+                if info['pk'] not in all_items_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 item = get_object_or_404(ListObject, pk=info['pk'])
-                item.units = info['units']
+                if info['units'] in [u[0] for u in ListObject.UNITS_OPTIONS]:
+                    item.units = info['units']
                 item.save()
 
                 return HttpResponse(json.dumps({
@@ -859,8 +913,35 @@ class ListObjectViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Make sure item is part of list
+                all_items_pks = [item.pk for item in
+                                 shopping_list.listobject_set.all()]
+                if info['pk'] not in all_items_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 item = get_object_or_404(ListObject, pk=info['pk'])
-                item.amount = info['amount']
+                if 0 < info['amount'] < 100:
+                    item.amount = info['amount']
                 item.save()
 
                 return HttpResponse(json.dumps({
@@ -893,16 +974,42 @@ class ListObjectViews:
         if request.method == 'POST':
             try:
                 info = json.loads(request.body)
+
+                # Get the user who added the object
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to add the item to
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Make sure item is part of list
+                all_items_pks = [item.pk for item in
+                                 shopping_list.listobject_set.all()]
+                if info['pk'] not in all_items_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
                 item = get_object_or_404(ListObject, pk=info['pk'])
                 item.amount = info['amount']
                 item.units = info['units']
                 item.product.name = info['name']
+                item.product.save()
                 item.save()
 
                 return HttpResponse(json.dumps({
-                    "success": "list item {} changed to amount {}".format(
-                        item.pk,
-                        item.amount
+                    "success": "list item {} changed".format(
+                        item.pk
                     )
                 }))
             except KeyError:
