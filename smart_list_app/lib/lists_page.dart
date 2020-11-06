@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/api.dart';
@@ -5,6 +6,7 @@ import 'package:smart_list_app/join_list.dart';
 import 'package:smart_list_app/list_page.dart';
 import 'package:smart_list_app/create_list.dart';
 import 'package:social_share/social_share.dart';
+import 'package:smart_list_app/info_page.dart';
 
 
 class ListsPage extends StatefulWidget {
@@ -63,6 +65,14 @@ class _ListsPageState extends State<ListsPage> {
     Navigator.of(context).push(MaterialPageRoute<Null>(
         builder: (BuildContext context) {
           return JoinListPage(user: currentUser);
+        }));
+  }
+
+  /// Go to info page
+  void _goToInfoPage() {
+    Navigator.of(context).push(MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return InfoPage();
         }));
   }
 
@@ -294,9 +304,30 @@ class _ListsPageState extends State<ListsPage> {
 
   }
 
+  Widget _getButton() {
+    return GestureDetector(
+        onTapDown: _storePosition,
+        child: IconButton(
+          icon: Icon(Icons.info_outline, color: Colors.black54,),
+          onPressed: () { _goToInfoPage(); },
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(40.0),
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          leading: Container(),
+          elevation: 0.0,
+          actions: [
+            _getButton()
+          ],
+        ),
+      ),
       body: Container(
         child: SafeArea(
           child: getBody(),
