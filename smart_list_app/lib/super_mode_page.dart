@@ -288,7 +288,8 @@ class _SuperModePageState extends State<SuperModePage> {
                   Container(color: Colors.grey),
                 ],
               ),
-            ))
+            )),
+            SizedBox(height: 60,)
           ],
         )
     );

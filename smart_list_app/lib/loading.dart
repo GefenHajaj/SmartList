@@ -5,8 +5,9 @@ import 'package:smart_list_app/lists_page.dart';
 import 'package:smart_list_app/api.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-
 import 'package:smart_list_app/sign_up.dart';
+import 'package:smart_list_app/ad_manager.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 
 class LoadingPage extends StatefulWidget {
   @override
@@ -19,6 +20,11 @@ class LoadingPage extends StatefulWidget {
 class _LoadingPageState extends State<LoadingPage> {
   String logoPath = "assets/smart_list_logo.png";
   Future connectedUser;
+
+  Future<void> _initAdMob() {
+    // Initialize AdMob SDK
+    return FirebaseAdMob.instance.initialize(appId: AdManager.appId);
+  }
 
   /// Check if the user is already registered.
   /// Go to a page according to result.
@@ -47,6 +53,7 @@ class _LoadingPageState extends State<LoadingPage> {
   void initState() {
     super.initState();
     checkIfAlreadySigned();
+    _initAdMob();
   }
 
   @override

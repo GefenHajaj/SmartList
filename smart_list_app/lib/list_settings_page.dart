@@ -168,7 +168,7 @@ class _ListSettingsPageState extends State<ListSettingsPage> {
                 )),
               ),
             ),
-            SizedBox(height: 40.0,)
+            SizedBox(height: 80.0,)
           ],
         ),
       ),

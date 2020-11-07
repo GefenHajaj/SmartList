@@ -258,6 +258,7 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                   ],
                 ),
               ),
+              SizedBox(height: 40.0,)
             ],
           ),
         )

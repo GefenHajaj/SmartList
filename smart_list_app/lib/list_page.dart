@@ -369,7 +369,8 @@ class _ListPageState extends State<ListPage> {
                     )
                 ),
               ),
-            ),))
+            ),)),
+            SizedBox(height: 60,)
           ],
         )
     );

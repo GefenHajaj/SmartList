@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "45404428062",
+    "firebase_url": "https://smartlistads.firebaseio.com",
+    "project_id": "smartlistads",
+    "storage_bucket": "smartlistads.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:45404428062:android:4f8653c3cd2cd08e7fdb0f",
+        "android_client_info": {
+          "package_name": "com.example.smart_list_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "45404428062-6keqahqu0q1evqoatd3kf86mlhqdi751.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBU07jpe_Wj72-orVZCBVy5wmqeSEW5OMM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "45404428062-6keqahqu0q1evqoatd3kf86mlhqdi751.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
