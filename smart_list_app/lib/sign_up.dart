@@ -12,9 +12,9 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  String buttonText = "יש למלא שם משתמש וסיסמא";
+  String buttonText = "יש למלא שם משתמש";
   String normalButtonText = "הירשם";
-  String warningButtonText = "יש למלא שם משתמש וססמא";
+  String warningButtonText = "יש למלא שם משתמש";
 
   Color buttonColor = Colors.grey[350];
   Color normalButtonColor = Colors.green[200];

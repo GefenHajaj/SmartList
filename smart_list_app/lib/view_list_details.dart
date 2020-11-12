@@ -28,7 +28,7 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
 
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) {
-    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nמספר הרשימה שלי הוא ${shoppingList.uniqueID}");
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}");
   }
 
   /// Go back to home screen.

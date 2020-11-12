@@ -186,6 +186,7 @@ class _ListPageState extends State<ListPage> {
                     // Determine color for item
                     Color currentColor;
                     User currentUserList;
+
                     if (index < currentItems.length) {
                       currentUserList = currentItems[index].userAdded;
                       if (userColors.keys.contains(currentUserList.pk)) {
@@ -200,7 +201,8 @@ class _ListPageState extends State<ListPage> {
                         userColors[currentUserList.pk] = currentColor;
                       }
                     }
-
+                    dynamic amount = currentItems[index].amount;
+                    amount = amount.roundToDouble() == amount ? amount.round() : amount;
                     // Create the list:
                     return GestureDetector(
                       onTapDown: _storePosition,
@@ -220,7 +222,7 @@ class _ListPageState extends State<ListPage> {
                           ),
                           subtitle: Text("נוסף על ידי ${currentUserList.name}"),
                           trailing: Text(
-                              "${currentItems[index].amount} ${currentItems[index]
+                              "$amount ${currentItems[index]
                                   .getUnitsText()}",
                             style: TextStyle(
                               fontWeight: FontWeight.bold
@@ -273,7 +275,8 @@ class _ListPageState extends State<ListPage> {
                 userColors[currentUserList.pk] = currentColor;
               }
             }
-
+            dynamic amount = currentItems[index].amount;
+            amount = amount.roundToDouble() == amount ? amount.round() : amount;
             // Create the list:
             return GestureDetector(
               onTapDown: _storePosition,
@@ -293,7 +296,7 @@ class _ListPageState extends State<ListPage> {
                   ),
                   subtitle: Text("נוסף על ידי ${currentUserList.name}"),
                   trailing: Text(
-                      "${currentItems[index].amount} ${currentItems[index]
+                      "$amount ${currentItems[index]
                           .getUnitsText()}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
