@@ -70,7 +70,7 @@ class _InfoPageState extends State<InfoPage> {
                     ),
                     SizedBox(width: 10.0),
                     Text(
-                      'brat6@outlook.co.il',
+                      'smartlistapp2020@gmail.com',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18.0,
@@ -117,6 +117,14 @@ class _InfoPageState extends State<InfoPage> {
                     )
                   ],
                 ),
+                SizedBox(height: 150.0),
+                Center(
+                  child: Text(
+                    "כל הזכויות שמורות ליניר ברט ©\n2020",
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                SizedBox(height: 60.0),
               ],
             ),
           ),
