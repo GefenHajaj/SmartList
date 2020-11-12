@@ -21,6 +21,7 @@ class _SuperModePageState extends State<SuperModePage> {
   List _currentItems;
   String _searchWord = "";
   Timer _timer;
+  int _refreshSeconds = 15;
   // bool _canceled = false;
 
   int _popTimes = 2;
@@ -34,7 +35,7 @@ class _SuperModePageState extends State<SuperModePage> {
     super.initState();
     _currentUser = widget.user;
     _currentShoppingList = widget.shoppingList;
-    _timer = new Timer.periodic(Duration(seconds: 5), (timer) {
+    _timer = new Timer.periodic(Duration(seconds: _refreshSeconds), (timer) {
       updateList();
     });
   }
@@ -288,7 +289,8 @@ class _SuperModePageState extends State<SuperModePage> {
                   Container(color: Colors.grey),
                 ],
               ),
-            ))
+            )),
+            SizedBox(height: 60,)
           ],
         )
     );
@@ -304,7 +306,7 @@ class _SuperModePageState extends State<SuperModePage> {
         backgroundColor: Colors.blue[700],
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: Center(child: Text("${_currentShoppingList.name} - מצב סופר", textDirection: TextDirection.rtl,)),
+        title: Center(child: Text("${_currentShoppingList.name} - מצב קניות", textDirection: TextDirection.rtl,)),
         elevation: 0.0,
       ),
       body: getPage(),

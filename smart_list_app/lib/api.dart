@@ -57,8 +57,8 @@ class Api {
           owner = user;
         else
           owner = new User(
-            name: shoppingListData['owner_name'],
-            pk: shoppingListData['owner_pk']
+              name: shoppingListData['owner_name'],
+              pk: shoppingListData['owner_pk']
           );
 
         // Create the shopping list and add it to our user
@@ -173,11 +173,11 @@ class Api {
       return Error(errorStatement: "product name must not be empty");
 
     ShoppingListObject newItem = new ShoppingListObject(
-      product: new Product(name: productName),
-      units: units,
-      amount: amount,
-      userAdded: user,
-      isBought: false
+        product: new Product(name: productName),
+        units: units,
+        amount: amount,
+        userAdded: user,
+        isBought: false
     );
     final url = Uri.https(baseUrl, "smartlist/list/add/");
     String body = json.encode({

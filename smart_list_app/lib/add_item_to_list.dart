@@ -38,6 +38,8 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
   FixedExtentScrollController _scrollController;
   FixedExtentScrollController _scrollControllerNumber;
 
+  bool _isButtonEnabled = true;
+
   int _popTimes = 2;
 
   bool shouldPop() {
@@ -55,13 +57,21 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
 
   /// Add the item to the list and go back to list page
   void addItemToList() async {
-    String unitsText = _units == 0 ? "units" : "kg";
-    ShoppingListObject newItem = await Api.addItemToList(_currentUser, _currentShoppingList, _productName, unitsText, _amountNumber + _amountFriction);
-    _currentShoppingList.items.add(newItem);
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (BuildContext context) => ListPage(user: _currentUser, shoppingList: _currentShoppingList, dataArrived: true)),
-          (Route<dynamic> route) => shouldPop(),
-    );
+    if (_isButtonEnabled) {
+      _isButtonEnabled = false;
+      String unitsText = _units == 0 ? "units" : "kg";
+      ShoppingListObject newItem = await Api.addItemToList(
+          _currentUser, _currentShoppingList, _productName, unitsText,
+          _amountNumber + _amountFriction);
+      _currentShoppingList.items.add(newItem);
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (BuildContext context) =>
+            ListPage(user: _currentUser,
+                shoppingList: _currentShoppingList,
+                dataArrived: true)),
+            (Route<dynamic> route) => shouldPop(),
+      );
+    }
   }
 
   void amountPickHandleNumbers(int index) {
@@ -258,6 +268,7 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                   ],
                 ),
               ),
+              SizedBox(height: 40.0,)
             ],
           ),
         )

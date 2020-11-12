@@ -294,6 +294,7 @@ class _ChangeItemPropertiesPageState extends State<ChangeItemPropertiesPage> {
                   ],
                 ),
               ),
+              SizedBox(height: 40.0,)
             ],
           ),
         )

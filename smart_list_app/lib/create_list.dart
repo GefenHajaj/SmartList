@@ -36,7 +36,8 @@ class _CreateListPageState extends State<CreateListPage> {
   /// Create the new list and go to get list info.
   /// If the list name is empty - do nothing.
   void createNewList() async {
-    if (_newShoppingListName != "") {
+    if (_newShoppingListName != "" && _isButtonEnabled) {
+      _isButtonEnabled = false;
       FocusScope.of(context).requestFocus(new FocusNode());
       setState(() {
         _buttonText = "טוען...";

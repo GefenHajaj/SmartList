@@ -7,7 +7,8 @@ import 'package:smart_list_app/list_page.dart';
 import 'package:smart_list_app/create_list.dart';
 import 'package:social_share/social_share.dart';
 import 'package:smart_list_app/info_page.dart';
-
+import 'package:smart_list_app/ad_manager.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 
 class ListsPage extends StatefulWidget {
   final User user;
@@ -25,18 +26,37 @@ class _ListsPageState extends State<ListsPage> {
   User currentUser;
   Future data;
   var tapPosition =  Offset(0.0, 0.0);
+  BannerAd _bannerAd;
 
   @override
   void initState() {
     super.initState();
+    _bannerAd = BannerAd(
+      adUnitId: AdManager.bannerAdUnitId,
+      size: AdSize.banner,
+    );
+    _loadBannerAd();
+
     currentUser = widget.user;
     if (!widget.dataArrived)
       data = Api.getUserLists(currentUser);
   }
 
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  void _loadBannerAd() {
+    _bannerAd
+      ..load()
+      ..show(anchorType: AnchorType.bottom);
+  }
+
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) {
-    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nמספר הרשימה שלי הוא ${shoppingList.uniqueID}");
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}");
   }
 
   /// Save the location of press
@@ -295,7 +315,7 @@ class _ListsPageState extends State<ListsPage> {
                   Container(color: Colors.grey),
                 ],
               ),
-              SizedBox(height: 40.0,)
+              SizedBox(height: 80.0,)
             ],
           ),
         ),
@@ -317,11 +337,12 @@ class _ListsPageState extends State<ListsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
+        extendBodyBehindAppBar: true,
+        appBar: PreferredSize(
         preferredSize: Size.fromHeight(40.0),
         child: AppBar(
           backgroundColor: Colors.transparent,
-          leading: Container(),
+          leading: Container(color: Colors.transparent,),
           elevation: 0.0,
           actions: [
             _getButton()
