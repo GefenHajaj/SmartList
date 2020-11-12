@@ -1,11 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_list_app/classes.dart';
-import 'package:smart_list_app/api.dart';
-import 'package:smart_list_app/join_list.dart';
-import 'package:smart_list_app/list_page.dart';
-import 'package:smart_list_app/create_list.dart';
-import 'package:social_share/social_share.dart';
+
 
 class InfoPage extends StatefulWidget {
   @override
