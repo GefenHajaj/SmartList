@@ -87,31 +87,37 @@ class Api {
     };
     List<ShoppingListObject> shoppingListItems = new List<ShoppingListObject>();
     final url = Uri.https(baseUrl, "smartlist/list/objects/", getParams);
-    final Response response = await get(url);
-    final responseMap = jsonDecode(response.body);
+    Response response;
+    try {
+      response = await get(url);
+      final responseMap = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
-      for (String pk in responseMap.keys) {
-        final shoppingListItemData = responseMap[pk];
+      if (response.statusCode == 200) {
+        for (String pk in responseMap.keys) {
+          final shoppingListItemData = responseMap[pk];
 
-        // Create the shopping list item and add it to the final list
-        ShoppingListObject newShoppingListItem = new ShoppingListObject(
-          pk: int.parse(pk),
-          product: new Product(
-              name: shoppingListItemData['name'], pk: shoppingListItemData['product_pk']),
-          units: shoppingListItemData['units'],
-          amount: shoppingListItemData['amount'],
-          userAdded: new User(name: shoppingListItemData['user_added_name'],
-              pk: shoppingListItemData['user_added_pk']),
-          isBought: shoppingListItemData['is_bought'],
-        );
-        shoppingListItems.add(newShoppingListItem);
+          // Create the shopping list item and add it to the final list
+          ShoppingListObject newShoppingListItem = new ShoppingListObject(
+            pk: int.parse(pk),
+            product: new Product(
+                name: shoppingListItemData['name'], pk: shoppingListItemData['product_pk']),
+            units: shoppingListItemData['units'],
+            amount: shoppingListItemData['amount'],
+            userAdded: new User(name: shoppingListItemData['user_added_name'],
+                pk: shoppingListItemData['user_added_pk']),
+            isBought: shoppingListItemData['is_bought'],
+          );
+          shoppingListItems.add(newShoppingListItem);
+        }
       }
+      else {
+        return null;
+      }
+      return shoppingListItems;
     }
-    else {
-      return null;
+    catch (e){
+      return [];
     }
-    return shoppingListItems;
   }
 
   /// This function creates a new list for the user.
