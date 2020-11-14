@@ -170,8 +170,10 @@ class _JoinListPageState extends State<JoinListPage> {
                             onChanged: (input) {
                               setState(() {
                                 _listName = input;
-                                if (isDataValid())
+                                if (isDataValid()) {
+                                  _enabledButtonColor = Colors.white;
                                   _buttonText = _enabledButtonText;
+                                }
                                 else
                                   _buttonText = _disabledButtonText;
                               });
@@ -228,8 +230,10 @@ class _JoinListPageState extends State<JoinListPage> {
                             onChanged: (input) {
                               setState(() {
                                 _uniqueIDString = input;
-                                if (isDataValid())
+                                if (isDataValid()) {
+                                  _enabledButtonColor = Colors.white;
                                   _buttonText = _enabledButtonText;
+                                }
                                 else
                                   _buttonText = _disabledButtonText;
                               });
