@@ -16,15 +16,17 @@ class JoinListPage extends StatefulWidget {
 class _JoinListPageState extends State<JoinListPage> {
   User _currentUser;
   String _uniqueIDString = "";
+  String _listName = "";
 
-  String _buttonText = "הכנס מספר רשימה";
+  String _buttonText = "הכנס פרטי רשימה";
   String _enabledButtonText = "המשך";
-  String _disabledButtonText = "הכנס מספר רשימה";
+  String _disabledButtonText = "הכנס פרטי רשימה";
 
   Color _enabledButtonColor = Colors.white;
   Color _disabledButtonColor = Colors.grey[350];
 
   TextEditingController _listNumController = new TextEditingController();
+  TextEditingController _listNameController = new TextEditingController();
 
   @override
   void initState() {
@@ -33,8 +35,8 @@ class _JoinListPageState extends State<JoinListPage> {
   }
 
   /// Is unique id valid
-  bool isUniqueIDValid() {
-    return _uniqueIDString.length == 8 && int.parse(_uniqueIDString, onError: (e) => null) != null;
+  bool isDataValid() {
+    return _uniqueIDString.length == 8 && int.parse(_uniqueIDString, onError: (e) => null) != null && _listName != "";
   }
   
   /// Go to main screen with delay
@@ -50,12 +52,12 @@ class _JoinListPageState extends State<JoinListPage> {
 
   /// Join a list and go to view list page
   void joinList() async {
-    if (isUniqueIDValid()) {
+    if (isDataValid()) {
       FocusScope.of(context).requestFocus(new FocusNode());
       setState(() {
         _buttonText = "טוען...";
       });
-      var newShoppingList = await Api.joinList(_currentUser, _uniqueIDString);
+      var newShoppingList = await Api.joinList(_currentUser, _uniqueIDString, _listName);
       List<int> listPks = new List<int>();
       for (ShoppingList sp in _currentUser.shoppingLists) {
         listPks.add(sp.pk);
@@ -68,6 +70,7 @@ class _JoinListPageState extends State<JoinListPage> {
           });
           Future.delayed(const Duration(seconds: 1), () {
             _listNumController.text = "";
+            _listNameController.text = "";
             setState(() {
               _buttonText = _disabledButtonText;
               _enabledButtonColor = _disabledButtonColor;
@@ -88,11 +91,12 @@ class _JoinListPageState extends State<JoinListPage> {
       }
       else {
         setState(() {
-          _buttonText = "מספר רשימה לא תקין";
+          _buttonText = "פרטי הרשימה אינם תקינים";
           _enabledButtonColor = Colors.red;
         });
         Future.delayed(const Duration(seconds: 1), () {
           _listNumController.text = "";
+          _listNameController.text = "";
           setState(() {
             _buttonText = _disabledButtonText;
             _enabledButtonColor = _disabledButtonColor;
@@ -118,60 +122,122 @@ class _JoinListPageState extends State<JoinListPage> {
                   height: MediaQuery.of(context).size.height / 4.5,
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                // crossAxisAlignment: CrossAxisAlignment.end,
-                textDirection: TextDirection.rtl,
+              Column(
                 children: [
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      children: [
-                        Center(
-                          child: Text(
-                            "מספר רשימה",
-                            textDirection: TextDirection.rtl,
-                            style: TextStyle(
-                              fontSize: 20,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // crossAxisAlignment: CrossAxisAlignment.end,
+                    textDirection: TextDirection.rtl,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Center(
+                              child: Text(
+                                "שם רשימה",
+                                textDirection: TextDirection.rtl,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
                             ),
-                          ),
+                            Text(
+                              "הרשימה אליה נצטרף",
+                              textDirection: TextDirection.rtl,
+                              style: TextStyle(
+                                fontSize: 12.0
+                              ),
+                            )
+                          ],
                         ),
-                        Text(
-                          "מספר בן 8 ספרות",
-                          textDirection: TextDirection.rtl,
-                          style: TextStyle(
-                            fontSize: 12.0
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: Container(
-                      child: TextField(
-                        style: TextStyle(
-                            fontSize: 20.0
-                        ),
-                        controller: _listNumController,
-                        // textAlignVertical: TextAlignVertical.bottom,
-                        decoration: InputDecoration(
-                          counterText: "",
-                        ),
-                        keyboardType: TextInputType.name,
-                        // textDirection: TextDirection.rtl,
-                        maxLength: 50,
-                        onChanged: (input) {
-                          setState(() {
-                            _uniqueIDString = input;
-                            if (isUniqueIDValid())
-                              _buttonText = _enabledButtonText;
-                            else
-                              _buttonText = _disabledButtonText;
-                          });
-                        },
                       ),
-                    ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: TextField(
+                            style: TextStyle(
+                                fontSize: 20.0
+                            ),
+                            controller: _listNameController,
+                            // textAlignVertical: TextAlignVertical.bottom,
+                            decoration: InputDecoration(
+                              counterText: "",
+                            ),
+                            keyboardType: TextInputType.name,
+                            textDirection: TextDirection.rtl,
+                            maxLength: 50,
+                            onChanged: (input) {
+                              setState(() {
+                                _listName = input;
+                                if (isDataValid())
+                                  _buttonText = _enabledButtonText;
+                                else
+                                  _buttonText = _disabledButtonText;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40.0,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    // crossAxisAlignment: CrossAxisAlignment.end,
+                    textDirection: TextDirection.rtl,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Column(
+                          children: [
+                            Center(
+                              child: Text(
+                                "מספר רשימה",
+                                textDirection: TextDirection.rtl,
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                            Text(
+                              "מספר בן 8 ספרות",
+                              textDirection: TextDirection.rtl,
+                              style: TextStyle(
+                                  fontSize: 12.0
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Container(
+                          child: TextField(
+                            style: TextStyle(
+                                fontSize: 20.0
+                            ),
+                            controller: _listNumController,
+                            // textAlignVertical: TextAlignVertical.bottom,
+                            decoration: InputDecoration(
+                              counterText: "",
+                            ),
+                            keyboardType: TextInputType.name,
+                            // textDirection: TextDirection.rtl,
+                            maxLength: 50,
+                            onChanged: (input) {
+                              setState(() {
+                                _uniqueIDString = input;
+                                if (isDataValid())
+                                  _buttonText = _enabledButtonText;
+                                else
+                                  _buttonText = _disabledButtonText;
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -187,7 +253,7 @@ class _JoinListPageState extends State<JoinListPage> {
                       color: _enabledButtonColor,
                       disabledTextColor: Colors.black54,
                       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
-                      onPressed: isUniqueIDValid() ? joinList : null,
+                      onPressed: isDataValid() ? joinList : null,
                       child: Text(_buttonText,
                         textDirection: TextDirection.rtl,
                         style: TextStyle(
@@ -230,6 +296,7 @@ class _JoinListPageState extends State<JoinListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       body: getBody(),
     );
   }

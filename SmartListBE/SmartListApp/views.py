@@ -182,7 +182,8 @@ class UserViews:
                                          secret=info['user_secret'])
                 shopping_list = get_object_or_404(
                     ShoppingList,
-                    unique_id=info['list_unique_id']
+                    unique_id=info['list_unique_id'],
+                    name=info['list_name'].strip()
                 )
 
                 # Make sure the user is not already there.
@@ -765,7 +766,7 @@ class ShoppingListViews:
                         "error": "list name can't be empty"
                     }))
                 new_list = ShoppingList(
-                    name=info['name'],
+                    name=info['name'].strip(),
                     owner=created_user,
                     unique_id=unique_id,
                 )
