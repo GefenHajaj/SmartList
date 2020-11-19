@@ -69,10 +69,10 @@ class _SignUpPageState extends State<SignUpPage> {
     setState(() {
       buttonText = "נרשמנו!";
       buttonColor = successButtonColor;
-      Navigator.of(context).push(MaterialPageRoute<Null>(
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute<Null>(
           builder: (BuildContext context) {
       return ListsPage(user: createdUser, dataArrived: false,);
-      }));
+      }), (Route<dynamic> route) => false);
     });
   }
 
