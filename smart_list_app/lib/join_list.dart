@@ -95,8 +95,8 @@ class _JoinListPageState extends State<JoinListPage> {
           _enabledButtonColor = Colors.red;
         });
         Future.delayed(const Duration(seconds: 1), () {
-          _listNumController.text = "";
-          _listNameController.text = "";
+          // _listNumController.text = "";
+          // _listNameController.text = "";
           setState(() {
             _buttonText = _disabledButtonText;
             _enabledButtonColor = _disabledButtonColor;

@@ -37,16 +37,16 @@ class _LoadingPageState extends State<LoadingPage> {
       print ('${userInfo['name']} - ${userInfo['pk']}');
       User user = new User(name: userInfo['name'], pk: userInfo['pk'], secret: userInfo['secret']);
       Api.connect(user);
-      Navigator.of(context).push(MaterialPageRoute<Null>(
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute<Null>(
           builder: (BuildContext context) {
             return ListsPage(user: user, dataArrived: false,);
-          }));
+          }), (Route<dynamic> route) => false);
     }
     else
-      Navigator.of(context).push(MaterialPageRoute<Null>(
+      Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute<Null>(
           builder: (BuildContext context) {
             return SignUpPage();
-          }));
+          }), (Route<dynamic> route) => false);
   }
 
   @override

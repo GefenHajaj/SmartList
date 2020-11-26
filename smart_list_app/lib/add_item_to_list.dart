@@ -7,8 +7,9 @@ import 'package:smart_list_app/list_page.dart';
 class AddItemToListPage extends StatefulWidget {
   final User user;
   final ShoppingList shoppingList;
+  final String initialName;
 
-  AddItemToListPage({Key key, @required this.user, @required this.shoppingList});
+  AddItemToListPage({Key key, this.initialName, @required this.user, @required this.shoppingList});
 
   @override
   _AddItemToListPageState createState() => _AddItemToListPageState();
@@ -39,7 +40,7 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
   FixedExtentScrollController _scrollControllerNumber;
 
   bool _isButtonEnabled = true;
-
+  bool _autoFocus = false;
   int _popTimes = 2;
 
   bool shouldPop() {
@@ -53,6 +54,8 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
     _currentShoppingList = widget.shoppingList;
     _scrollController = FixedExtentScrollController();
     _scrollControllerNumber = FixedExtentScrollController(initialItem: 1);
+    _productName = widget.initialName != null ? widget.initialName : "";
+    _autoFocus = widget.initialName != null && widget.initialName != "";
   }
 
   /// Add the item to the list and go back to list page
@@ -128,7 +131,9 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
                   Expanded(
                     flex: 2,
                     child: Container(
-                      child: TextField(
+                      child: TextFormField(
+                        autofocus: _autoFocus,
+                        initialValue: _productName,
                         textAlignVertical: TextAlignVertical.bottom,
                         decoration: InputDecoration(
                           counterText: "",

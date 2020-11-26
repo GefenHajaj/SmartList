@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/lists_page.dart';
@@ -12,13 +13,13 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  String buttonText = "יש למלא שם משתמש";
-  String normalButtonText = "הירשם";
-  String warningButtonText = "יש למלא שם משתמש";
+  String buttonText = "הרשמה";
+  String normalButtonText = "הרשמה";
+  String warningButtonText = "הרשמה";
 
-  Color buttonColor = Colors.grey[350];
+  Color buttonColor = Colors.green[200];
   Color normalButtonColor = Colors.green[200];
-  Color warningButtonColor = Colors.grey[350];
+  Color warningButtonColor = Colors.green[200];
   Color successButtonColor = Colors.green;
 
   bool isButtonDisabled = true;
@@ -102,50 +103,53 @@ class _SignUpPageState extends State<SignUpPage> {
                 flex: 1,
                 child: Container(
                   margin: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                    child: Text(
-                        "שם משתמש",
-                      textDirection: TextDirection.rtl,
-                      style: TextStyle(
-                        fontSize: 18.0
-                      ),
+                    child: Icon(
+                      Icons.person,
+                      size: 40.0,
                     )
                 ),
               ),
               Expanded(
-                flex: 2,
+                flex: 4,
                 child: Container(
-                  child: TextField(
-                    style: TextStyle(
-                      fontSize: 18.0
-                    ),
-                    decoration: InputDecoration(
-                      counterText: "",
-                      border: new OutlineInputBorder(
-                        borderRadius: const BorderRadius.all(
-                          const Radius.circular(2.0),
-                        ),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    keyboardType: TextInputType.name,
+                  child: Directionality(
                     textDirection: TextDirection.rtl,
-                    maxLength: 50,
-                    onChanged: (input) {
-                      setState(() {
-                        name = input;
-                        if (name != "") {
-                          buttonColor = normalButtonColor;
-                          buttonText = normalButtonText;
-                          isButtonDisabled = false;
-                        }
-                        else {
-                          buttonColor = warningButtonColor;
-                          buttonText = warningButtonText;
-                          isButtonDisabled = true;
-                        }
-                      });
-                    },
+                    child: TextField(
+                      style: TextStyle(
+                        fontSize: 18.0,
+                      ),
+                      decoration: InputDecoration(
+                        contentPadding: EdgeInsets.fromLTRB(0.0, 15.0, 15.0, 15.0),
+                        isDense: true,
+                        hintText: "יש להכניס שם משתמש",
+                        counterText: "",
+                        border: new OutlineInputBorder(
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(50.0),
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                      keyboardType: TextInputType.name,
+                      textDirection: TextDirection.rtl,
+                      maxLength: 50,
+                      onChanged: (input) {
+                        setState(() {
+                          name = input;
+                          if (name != "") {
+                            buttonColor = normalButtonColor;
+                            buttonText = normalButtonText;
+                            isButtonDisabled = false;
+                          }
+                          else {
+                            buttonColor = warningButtonColor;
+                            buttonText = warningButtonText;
+                            isButtonDisabled = true;
+                          }
+                        });
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -165,7 +169,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     style: TextStyle(
                         fontWeight: FontWeight.bold
                     ),
-                  ))),
+                  )),
+                shape: ContinuousRectangleBorder(side: BorderSide(
+                    color: Colors.grey[300],
+                    width: 1,
+                    style: BorderStyle.solid
+                )),
+              ),
             ]),
           )
         ],

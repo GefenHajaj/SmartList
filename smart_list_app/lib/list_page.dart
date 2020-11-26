@@ -120,7 +120,7 @@ class _ListPageState extends State<ListPage> {
   void goToAddItemPage() {
     Navigator.of(context).push(MaterialPageRoute<Null>(
         builder: (BuildContext context) {
-          return AddItemToListPage(user: currentUser, shoppingList: currentShoppingList,);
+          return AddItemToListPage(initialName: searchWord, user: currentUser, shoppingList: currentShoppingList,);
         }));
   }
 
@@ -158,6 +158,42 @@ class _ListPageState extends State<ListPage> {
     arrangeCurrentItems(searchWord);
   }
 
+  Widget _getAddFirstItemButton() {
+    return Center(
+        child: Wrap(
+            children: [
+              MaterialButton(
+                onPressed: goToAddItemPage,
+                color: Colors.green[100],
+                elevation: 5.0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Icon(
+                          Icons.add,
+                        size: 50,
+                      ),
+                      Text(
+                          "הוסף מוצר\nלרשימה",
+                        textDirection: TextDirection.rtl,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18.0
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ]
+        )
+    );
+  }
+
   Widget getItemsList() {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
     if (!dataArrived) {
@@ -174,9 +210,8 @@ class _ListPageState extends State<ListPage> {
               currentItems = currentShoppingList.items;
               arrangeCurrentItems(searchWord);
 
-              if (currentItems.isEmpty) {
-                print("Number of shopping list items: ${currentItems.length}");
-                return Center(child: Text("אין מוצרים להראות"));
+              if (currentShoppingList.items.isEmpty) {
+                return _getAddFirstItemButton();
               }
               else {
                 return ListView.builder(
@@ -215,17 +250,17 @@ class _ListPageState extends State<ListPage> {
                           leading: CircleAvatar(child: Text(currentUserList
                               .name[0]), backgroundColor: currentColor,),
                           title: Text(
-                              currentItems[index].product.name,
+                            currentItems[index].product.name,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           subtitle: Text("נוסף על ידי ${currentUserList.name}"),
                           trailing: Text(
-                              "$amount ${currentItems[index]
-                                  .getUnitsText()}",
+                            "$amount ${currentItems[index]
+                                .getUnitsText()}",
                             style: TextStyle(
-                              fontWeight: FontWeight.bold
+                                fontWeight: FontWeight.bold
                             ),
                           ),
                         ),
@@ -249,9 +284,9 @@ class _ListPageState extends State<ListPage> {
       currentItems = currentShoppingList.items;
       arrangeCurrentItems(searchWord);
 
-      if (currentItems.isEmpty) {
+      if (currentShoppingList.items.isEmpty) {
         print("Number of shopping list items: ${currentItems.length}");
-        return Center(child: Text("אין מוצרים להראות"));
+        return _getAddFirstItemButton();
       }
       else {
         return ListView.builder(
@@ -289,15 +324,15 @@ class _ListPageState extends State<ListPage> {
                   leading: CircleAvatar(child: Text(currentUserList
                       .name[0]), backgroundColor: currentColor,),
                   title: Text(
-                      currentItems[index].product.name,
+                    currentItems[index].product.name,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   subtitle: Text("נוסף על ידי ${currentUserList.name}"),
                   trailing: Text(
-                      "$amount ${currentItems[index]
-                          .getUnitsText()}",
+                    "$amount ${currentItems[index]
+                        .getUnitsText()}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                     ),
@@ -321,58 +356,80 @@ class _ListPageState extends State<ListPage> {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: TextFormField(
-                  style: TextStyle(
-                      fontSize: 18.0
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                      flex: 2,
+                      child: IconButton(
+                        icon: Center(
+                          child: Icon(
+                              Icons.add,
+                            size: 36.0,
+                            color: Colors.green,
+                          ),
+                        ),
+                        onPressed: goToAddItemPage,
+                      )
                   ),
-                  decoration: const InputDecoration(
-                    hintText: 'חלב',
-                    labelText: 'מה לחפש?',
+                  // Expanded(child: Container(), flex: 1,),
+                  Expanded(
+                    flex: 12,
+                    child: Directionality(
+                      textDirection: TextDirection.rtl,
+                      child: TextFormField(
+                        style: TextStyle(
+                            fontSize: 18.0
+                        ),
+                        decoration: const InputDecoration(
+                          labelText: 'מה לחפש?',
+                        ),
+                        textDirection: TextDirection.rtl,
+                        onChanged: (input) {
+                          setState(() {
+                            searchWord = input;
+                            doSearch();
+                          });
+                        },
+                      ),
+                    ),
                   ),
-                  textDirection: TextDirection.rtl,
-                  onChanged: (input) {
-                    setState(() {
-                      searchWord = input;
-                      doSearch();
-                    });
-                  },
-                ),
+                ],
               ),
             ),
             Expanded(flex:6,child: Container(child: getItemsList())),
             Expanded(flex:1,child: Container(height: MediaQuery.of(context).size.height, color: Colors.grey[300],
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Material(
-                  // elevation: 10.0,
-                    borderRadius: BorderRadius.circular(50.0),
-                    color: Colors.transparent,
-                    child: Container(
-                      height: 60.0,
-                      width: 250.0,
-                      decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(50.0)
-                      ),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(50.0),
-                        onTap: goToSuperMode,
-                        child: Center(
-                          child: Text("מצב קניות",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24.0
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Material(
+                    // elevation: 10.0,
+                      borderRadius: BorderRadius.circular(50.0),
+                      color: Colors.transparent,
+                      child: Container(
+                        height: 60.0,
+                        width: 250.0,
+                        decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(50.0)
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(50.0),
+                          onTap: goToSuperMode,
+                          child: Center(
+                            child: Text("מצב קניות",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 24.0
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    )
+                      )
+                  ),
                 ),
-              ),
-            ),)),
+              ),)),
             SizedBox(height: 60,)
           ],
         )
@@ -385,7 +442,7 @@ class _ListPageState extends State<ListPage> {
       resizeToAvoidBottomPadding: false,
       appBar: AppBar(
         actions: [
-          IconButton(icon: Icon(Icons.add), onPressed: goToAddItemPage),
+          // IconButton(icon: Icon(Icons.add), onPressed: goToAddItemPage),
           IconButton(icon: Icon(Icons.settings), onPressed: () { goToListSettings(); }),
         ],
         leading: IconButton(

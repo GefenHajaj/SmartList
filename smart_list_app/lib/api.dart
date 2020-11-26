@@ -8,14 +8,14 @@ import 'package:smart_list_app/classes.dart';
 import 'package:http/http.dart';
 
 class Api {
-  // static final String baseUrl = "10.0.2.2:8000";  // avd
+  static final String baseUrl = "10.0.2.2:8000";  // avd
   // static final String baseUrl = "172.20.10.2:8000";  // through hotspot
   // static final String baseUrl = "192.168.1.31:8000";  // for android
-  static final String baseUrl = "smartlistapps.com";  // production
+  // static final String baseUrl = "smartlistapps.com";  // production
 
   /// Create and register a new user.
   static Future createUser(userInfo) async {
-    final url = Uri.https(baseUrl, "/smartlist/user/register/");
+    final url = Uri.http(baseUrl, "/smartlist/user/register/");
     final Response response =  await post(url, body: jsonEncode(userInfo));
     final userMap = jsonDecode(response.body);
     if (response.statusCode == 200) {
@@ -28,7 +28,7 @@ class Api {
 
   /// Tell the server the user connected.
   static void connect(User user) async {
-    final url = Uri.https(baseUrl, "/smartlist/user/connect/");
+    final url = Uri.http(baseUrl, "/smartlist/user/connect/");
     String body = json.encode({
       "pk": user.pk,
       "secret": user.secret
@@ -44,7 +44,7 @@ class Api {
       "secret": user.secret
     };
     List<ShoppingList> shoppingLists = new List<ShoppingList>();
-    final url = Uri.https(baseUrl, "smartlist/user/lists/", getParams);
+    final url = Uri.http(baseUrl, "smartlist/user/lists/", getParams);
     final Response response = await get(url);
     final responseMap = jsonDecode(response.body);
     if (response.statusCode == 200) {
@@ -86,7 +86,7 @@ class Api {
       "user_secret": user.secret
     };
     List<ShoppingListObject> shoppingListItems = new List<ShoppingListObject>();
-    final url = Uri.https(baseUrl, "smartlist/list/objects/", getParams);
+    final url = Uri.http(baseUrl, "smartlist/list/objects/", getParams);
     Response response;
     try {
       response = await get(url);
@@ -125,7 +125,7 @@ class Api {
   /// Note that the name cannot be empty!
   static Future createShoppingList(User user, String name) async {
     ShoppingList newShoppingList = new ShoppingList(owner: user, name: name);
-    final url = Uri.https(baseUrl, "smartlist/list/create/");
+    final url = Uri.http(baseUrl, "smartlist/list/create/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -152,7 +152,7 @@ class Api {
       return Error(errorStatement: "Unique id must be number");
 
     ShoppingList newShoppingList = new ShoppingList(uniqueID: uniqueIDInt, name: listName);
-    final url = Uri.https(baseUrl, "smartlist/user/addlist/");
+    final url = Uri.http(baseUrl, "smartlist/user/addlist/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -186,7 +186,7 @@ class Api {
         userAdded: user,
         isBought: false
     );
-    final url = Uri.https(baseUrl, "smartlist/list/add/");
+    final url = Uri.http(baseUrl, "smartlist/list/add/");
     String body = json.encode({
       "product_name": productName,
       "user_pk": user.pk,
@@ -211,7 +211,7 @@ class Api {
   /// Change an item - the amount, the unit or the name.
   /// returns null on success and error on failure.
   static Future changeListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
-    final url = Uri.https(baseUrl, "smartlist/item/change/");
+    final url = Uri.http(baseUrl, "smartlist/item/change/");
     String body = json.encode({
       "pk": item.pk,
       "amount": item.amount,
@@ -233,7 +233,7 @@ class Api {
   }
 
   static Future deleteShoppingList(User user, ShoppingList shoppingList) async {
-    final url = Uri.https(baseUrl, "smartlist/list/delete/");
+    final url = Uri.http(baseUrl, "smartlist/list/delete/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -251,7 +251,7 @@ class Api {
   }
 
   static Future buyShoppingListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
-    final url = Uri.https(baseUrl, "smartlist/list/buy/");
+    final url = Uri.http(baseUrl, "smartlist/list/buy/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -270,7 +270,7 @@ class Api {
   }
 
   static Future unbuyShoppingListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
-    final url = Uri.https(baseUrl, "smartlist/list/unbuy/");
+    final url = Uri.http(baseUrl, "smartlist/list/unbuy/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -289,7 +289,7 @@ class Api {
   }
 
   static Future deleteShoppingListItem(User user, ShoppingList shoppingList, ShoppingListObject item) async {
-    final url = Uri.https(baseUrl, "smartlist/list/remove/");
+    final url = Uri.http(baseUrl, "smartlist/list/remove/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -308,7 +308,7 @@ class Api {
   }
 
   static Future wipeShoppingList(User user, ShoppingList shoppingList) async {
-    final url = Uri.https(baseUrl, "smartlist/list/wipe/");
+    final url = Uri.http(baseUrl, "smartlist/list/wipe/");
     String body = json.encode({
       "user_pk": user.pk,
       "user_secret": user.secret,
@@ -333,7 +333,7 @@ class Api {
     };
     List<User> listMembers = new List<User>();
 
-    final url = Uri.https(baseUrl, "smartlist/list/getmembers/", getParams);
+    final url = Uri.http(baseUrl, "smartlist/list/getmembers/", getParams);
     final Response response = await get(url);
     final responseMap = jsonDecode(response.body);
 
@@ -350,7 +350,7 @@ class Api {
   }
 
   static Future removeUserFromList(User user, User userToRemove, ShoppingList shoppingList) async {
-    final url = Uri.https(baseUrl, "smartlist/user/exitlist/");
+    final url = Uri.http(baseUrl, "smartlist/user/exitlist/");
     String body = json.encode({
       "removing_pk": user.pk,
       "removing_secret": user.secret,

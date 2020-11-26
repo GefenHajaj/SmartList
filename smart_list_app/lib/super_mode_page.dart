@@ -87,13 +87,63 @@ class _SuperModePageState extends State<SuperModePage> {
   /// Wipe the entire list - delete all the items and go back to list page.
   void deleteEverything() {
     // Delete all the items from the shopping list
-    Api.wipeShoppingList(_currentUser, _currentShoppingList);
-    _currentShoppingList.items = new List<ShoppingListObject>();
+    if (_currentShoppingList.items != null && _currentShoppingList.items.isNotEmpty) {
+      Api.wipeShoppingList(_currentUser, _currentShoppingList);
+      _currentShoppingList.items = new List<ShoppingListObject>();
+    }
     // Go back to list page - but updated!
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (BuildContext context) => ListPage(user: _currentUser, shoppingList: _currentShoppingList, dataArrived: true)),
           (Route<dynamic> route) => _shouldPop(),
     );
+  }
+
+  void _deleteEverythingAlert() {
+    if (_currentShoppingList.items == null || _currentShoppingList.items.isEmpty)
+      deleteEverything();
+    else {
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) =>
+              AlertDialog(
+                title: Text("למחוק את כל המוצרים ברשימה?",
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                content: Text(
+                  "בטוחים שאתם רוצים למחוק את כל המוצרים ברשימה?",
+                  textDirection: TextDirection.rtl,
+                ),
+                actions: [
+                  FlatButton(
+                      onPressed: Navigator
+                          .of(context)
+                          .pop,
+                      child: Text(
+                        "לא",
+                        style: TextStyle(
+                          color: Colors.black,
+                          // fontWeight: FontWeight.bold
+                        ),
+                      )
+                  ),
+                  FlatButton(
+                      onPressed: deleteEverything,
+                      child: Text(
+                        "כן",
+                        style: TextStyle(
+                          color: Colors.black,
+                          // fontWeight: FontWeight.bold
+                        ),
+                      )
+                  ),
+                ],
+              )
+      );
+    }
   }
 
 
@@ -159,6 +209,8 @@ class _SuperModePageState extends State<SuperModePage> {
         // scrollDirection: Axis.vertical,
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
+          dynamic amount = _currentItems[index].amount;
+          amount = amount.roundToDouble() == amount ? amount.round() : amount;
           // Create the list:
           return Directionality(
             textDirection: TextDirection.rtl,
@@ -186,7 +238,7 @@ class _SuperModePageState extends State<SuperModePage> {
               subtitle: Text(
                   "נוסף על ידי ${_currentItems[index].userAdded.name}"),
               trailing: Text(
-                  "${_currentItems[index].amount} ${_currentItems[index]
+                  "$amount ${_currentItems[index]
                       .getUnitsText()}",
                 style: TextStyle(
                     fontWeight: FontWeight.bold
@@ -272,7 +324,7 @@ class _SuperModePageState extends State<SuperModePage> {
                   FlatButton(
                     color: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 16.0),
-                    onPressed: deleteEverything,
+                    onPressed: _deleteEverythingAlert,
                     child: Text("נקה את\nכל הרשימה",
                       textDirection: TextDirection.rtl,
                       textAlign: TextAlign.center,

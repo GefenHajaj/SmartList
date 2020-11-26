@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/classes.dart';
+import 'package:smart_list_app/list_page.dart';
 import 'package:smart_list_app/lists_page.dart';
 import 'package:social_share/social_share.dart';
 
@@ -28,17 +29,21 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
 
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) {
-    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Smart List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}");
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}");
   }
 
   /// Go back to home screen.
   /// Make sure to reload home screen!
-  void goBackToListsPage() {
+  void _goToListPage() {
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(
           builder: (BuildContext context) => ListsPage(user: _currentUser, dataArrived: true)
       ), (Route<dynamic> route) => false,
     );
+    Navigator.of(context).push(
+      MaterialPageRoute(
+          builder: (BuildContext context) => ListPage(user: _currentUser, shoppingList: _currentShoppingList, dataArrived: false)
+      ));
   }
 
   /// Get the body of the page
@@ -73,7 +78,7 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
                   FlatButton(
                     color: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16.0),
-                    onPressed: goBackToListsPage,
+                    onPressed: _goToListPage,
                     child: Text("אישור",
                       textDirection: TextDirection.rtl,
                       style: TextStyle(
@@ -88,9 +93,17 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(15.0),
-                    child: IconButton(
-                      iconSize: 40.0,
-                        icon: Icon(Icons.ios_share),
+                    child: FlatButton(
+                        child: Column(
+                          children: [
+                            Icon(Icons.ios_share, size: 40.0,),
+                            SizedBox(height: 5.0,),
+                            Text(
+                              "שיתוף", style:
+                              TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
                         onPressed: () { shareList(_currentShoppingList); }
                     ),
                   )

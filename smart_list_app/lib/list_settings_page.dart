@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_list_app/api.dart';
 import 'package:smart_list_app/classes.dart';
+import 'package:smart_list_app/lists_page.dart';
 import 'dart:async';
 
 class ListSettingsPage extends StatefulWidget {
@@ -98,6 +99,58 @@ class _ListSettingsPageState extends State<ListSettingsPage> {
     );
   }
 
+  /// Go back to home screen.
+  /// Make sure to reload home screen!
+  void _deleteList() {
+    Api.deleteShoppingList(_currentUser, _currentShoppingList);
+    _currentUser.shoppingLists.remove(_currentShoppingList);
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+          builder: (BuildContext context) => ListsPage(user: _currentUser, dataArrived: true)
+      ), (Route<dynamic> route) => false,
+    );
+  }
+
+  void _deleteListAlert() {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => AlertDialog(
+          title: Text("למחוק את הרשימה?", textDirection: TextDirection.rtl,
+            style: TextStyle(
+                fontWeight: FontWeight.bold
+            ),
+          ),
+          content: Text(
+            "בטוחים שאתם רוצים למחוק את הרשימה?\nפעולה זו היא בלתי הפיכה!",
+            textDirection: TextDirection.rtl,
+          ),
+          actions: [
+            FlatButton(
+                onPressed: Navigator.of(context).pop,
+                child: Text(
+                  "לא",
+                  style: TextStyle(
+                    color: Colors.black,
+                    // fontWeight: FontWeight.bold
+                  ),
+                )
+            ),
+            FlatButton(
+                onPressed: _deleteList,
+                child: Text(
+                  "כן",
+                  style: TextStyle(
+                    color: Colors.black,
+                    // fontWeight: FontWeight.bold
+                  ),
+                )
+            ),
+          ],
+        )
+    );
+  }
+
   Widget getPage() {
     return SafeArea(
       child: SingleChildScrollView(
@@ -156,6 +209,26 @@ class _ListSettingsPageState extends State<ListSettingsPage> {
                   goBack();
                 },
                 child: Text("אישור",
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                shape: ContinuousRectangleBorder(side: BorderSide(
+                    color: Colors.black54,
+                    width: 3,
+                    style: BorderStyle.solid
+                )),
+              ),
+            ),
+            SizedBox(height: 20,),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
+              child: FlatButton(
+                color: Colors.red,
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                onPressed: _deleteListAlert,
+                child: Text("מחק רשימה",
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
                       fontWeight: FontWeight.bold

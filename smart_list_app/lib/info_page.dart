@@ -38,6 +38,26 @@ class _InfoPageState extends State<InfoPage> {
                 ),
                 SizedBox(height: 40.0),
                 Text(
+                  'אז... איך זה עובד?',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    color: Colors.black54,
+                    letterSpacing: 2.0,
+                  ),
+                ),
+                SizedBox(height: 10.0),
+                Text(
+                  'לאחר שיצרתם רשימה, בדף הבית תוכלו לשתף את הרשימה עם חברים ומשפחה על ידי לחיצה על אייקון השיתוף, כך שתוכלו לנהל ביחד את הרשימה שלכם ולהוסיף לה מוצרים!\nלאחר רישום המוצרים ברשימה, הם ילוו אתכם עד שתגיעו לקניות!\nתוכלו לשנות את שם המוצר או את הכמות על ידי לחיצה על המוצר בעמוד הרשימה.\nלבסוף, תוכלו לסמן ביחד את מה שקניתם במצב קניות!',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16.0,
+                    letterSpacing: 2.0,
+                  ),
+                  textDirection: TextDirection.rtl,
+                ),
+                SizedBox(height: 40.0),
+                Text(
                   'יזם הרעיון',
                   textDirection: TextDirection.rtl,
                   style: TextStyle(
