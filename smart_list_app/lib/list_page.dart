@@ -584,7 +584,7 @@ class _ListPageState extends State<ListPage> {
                             fontSize: 18.0
                         ),
                         decoration: const InputDecoration(
-                          labelText: 'מה לחפש?',
+                          labelText: 'מה לחפש או להוסיף?',
                         ),
                         textDirection: TextDirection.rtl,
                         onChanged: (input) {

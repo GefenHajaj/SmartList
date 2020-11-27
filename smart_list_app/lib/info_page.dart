@@ -47,7 +47,7 @@ class _InfoPageState extends State<InfoPage> {
                 ),
                 SizedBox(height: 10.0),
                 Text(
-                  'לאחר שיצרתם רשימה, בדף הבית תוכלו לשתף את הרשימה עם חברים ומשפחה על ידי לחיצה על אייקון השיתוף, כך שתוכלו לנהל ביחד את הרשימה שלכם ולהוסיף לה מוצרים!\nלאחר רישום המוצרים ברשימה, הם ילוו אתכם עד שתגיעו לקניות!\nתוכלו לשנות את שם המוצר או את הכמות על ידי לחיצה על המוצר בעמוד הרשימה.\nלבסוף, תוכלו לסמן ביחד את מה שקניתם במצב קניות!',
+                  'לאחר שיצרתם רשימה, בדף הבית תוכלו לשתף את הרשימה עם חברים ומשפחה על ידי לחיצה על אייקון השיתוף. כך תוכלו לנהל ביחד את הרשימה שלכם, להוסיף לה מוצרים ולסמן את מה שקניתם!\n\nלחצו לחיצה קצרה על מוצר כדי לסמן אותו כנקנה, ולחיצה ארוכה כדי לערוך אותו. בהגדרות הרשימה תוכלו לראות את פרטי הרשימה והמשתתפים בה.\n\nתהנו!',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -78,20 +78,24 @@ class _InfoPageState extends State<InfoPage> {
                 ),
                 SizedBox(height: 10.0),
                 Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.email,
-                      color: Colors.black,
+                  children: [
+                    Wrap(
+                      children: <Widget>[
+                        Icon(
+                          Icons.email,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10.0),
+                        Text(
+                          'smartlistapp2020@gmail.com',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18.0,
+                            letterSpacing: 1.0,
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(width: 10.0),
-                    Text(
-                      'smartlistapp2020@gmail.com',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18.0,
-                        letterSpacing: 1.0,
-                      ),
-                    )
                   ],
                 ),
                 SizedBox(height: 40.0),
@@ -116,20 +120,24 @@ class _InfoPageState extends State<InfoPage> {
                 ),
                 SizedBox(height: 10.0),
                 Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.email,
-                      color: Colors.black,
+                  children: [
+                    Wrap(
+                      children: <Widget>[
+                        Icon(
+                          Icons.email,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 10.0),
+                        Text(
+                          'gefenhajaj@gmail.com',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 18.0,
+                            letterSpacing: 1.0,
+                          ),
+                        )
+                      ],
                     ),
-                    SizedBox(width: 10.0),
-                    Text(
-                      'gefenhajaj@gmail.com',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18.0,
-                        letterSpacing: 1.0,
-                      ),
-                    )
                   ],
                 ),
                 SizedBox(height: 100.0),

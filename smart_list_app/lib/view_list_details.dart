@@ -18,6 +18,7 @@ class ViewListDetailsPage extends StatefulWidget {
 class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
   User _currentUser;
   ShoppingList _currentShoppingList;
+  String _storeLink = "https://play.google.com/store/apps/details?id=com.smartlistapps.smart_list_app";
 
   @override
   void initState() {
@@ -29,7 +30,7 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
 
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) {
-    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}");
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}\n\nעוד אין לך Super List?\nהורד עכשיו: $_storeLink");
   }
 
   /// Go back to home screen.

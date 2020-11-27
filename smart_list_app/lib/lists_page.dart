@@ -32,6 +32,7 @@ class _ListsPageState extends State<ListsPage> {
   Future data;
   var tapPosition = Offset(0.0, 0.0);
   BannerAd _bannerAd;
+  String _storeLink = "https://play.google.com/store/apps/details?id=com.smartlistapps.smart_list_app";
 
   @override
   void initState() {
@@ -61,7 +62,7 @@ class _ListsPageState extends State<ListsPage> {
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) async {
     await SocialShare.shareOptions(
-        "היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}");
+        "היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}\n\nעוד אין לך Super List?\nהורד עכשיו: $_storeLink");
     _canPressShare = true;
   }
 
@@ -345,6 +346,7 @@ class _ListsPageState extends State<ListsPage> {
       icon: Icon(
         Icons.info_outline,
         color: Colors.black54,
+        size: 30.0,
       ),
       onPressed: () {
         _goToInfoPage();
@@ -404,6 +406,7 @@ class _ListsPageState extends State<ListsPage> {
         icon: Icon(
           Icons.exit_to_app_outlined,
           color: Colors.red[300],
+          size: 25.0,
         ),
         onPressed: _signOutAlert);
   }
