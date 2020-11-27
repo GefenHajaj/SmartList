@@ -137,8 +137,15 @@ class _ListPageState extends State<ListPage> {
   void arrangeCurrentItems(String search) {
     List temp = currentItems;
     currentItems = List();
+    // Add all items that match search:
     for (var item in temp) {
       if (item.product.name.contains(search) && !item.isBought) {
+        currentItems.add(item);
+      }
+    }
+    // Add all items that match search and were bought
+    for (var item in temp) {
+      if (item.product.name.contains(search) && item.isBought) {
         currentItems.add(item);
       }
     }
@@ -194,6 +201,43 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
+  Widget _getItemWidget(ShoppingListObject item, RenderBox overlay, Color currentColor, User currentUserList) {
+    dynamic amount = item.amount;
+    amount = amount.roundToDouble() == amount ? amount.round() : amount;
+    return GestureDetector(
+      onTapDown: _storePosition,
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: ListTile(
+          onLongPress: () {
+            if (!item.isBought)
+              showPopUpMenu(item, overlay);
+          },
+          onTap: () {
+            // buyOrUnbuyItem(_currentItems[index]);
+          },
+          leading: CircleAvatar(
+            child: Text(currentUserList.name[0]),
+            backgroundColor: item.isBought ? Colors.black54 : currentColor,
+          ),
+          title: Text(
+            "${item.product.name}${item.isBought ? " - נקנה" : ""}",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text("נוסף על ידי ${currentUserList.name}"),
+          trailing: Text(
+            "$amount ${item.getUnitsText()}",
+            style: TextStyle(
+                fontWeight: FontWeight.bold
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget getItemsList() {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
     if (!dataArrived) {
@@ -236,36 +280,8 @@ class _ListPageState extends State<ListPage> {
                         userColors[currentUserList.pk] = currentColor;
                       }
                     }
-                    dynamic amount = currentItems[index].amount;
-                    amount = amount.roundToDouble() == amount ? amount.round() : amount;
                     // Create the list:
-                    return GestureDetector(
-                      onTapDown: _storePosition,
-                      child: Directionality(
-                        textDirection: TextDirection.rtl,
-                        child: ListTile(
-                          onLongPress: () {
-                            showPopUpMenu(currentItems[index], overlay);
-                          },
-                          leading: CircleAvatar(child: Text(currentUserList
-                              .name[0]), backgroundColor: currentColor,),
-                          title: Text(
-                            currentItems[index].product.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          subtitle: Text("נוסף על ידי ${currentUserList.name}"),
-                          trailing: Text(
-                            "$amount ${currentItems[index]
-                                .getUnitsText()}",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
+                    return _getItemWidget(currentItems[index], overlay, currentColor, currentUserList);
                   },
                   itemCount: currentItems.length,
                 );
@@ -313,33 +329,7 @@ class _ListPageState extends State<ListPage> {
             dynamic amount = currentItems[index].amount;
             amount = amount.roundToDouble() == amount ? amount.round() : amount;
             // Create the list:
-            return GestureDetector(
-              onTapDown: _storePosition,
-              child: Directionality(
-                textDirection: TextDirection.rtl,
-                child: ListTile(
-                  onLongPress: () {
-                    showPopUpMenu(currentItems[index], overlay);
-                  },
-                  leading: CircleAvatar(child: Text(currentUserList
-                      .name[0]), backgroundColor: currentColor,),
-                  title: Text(
-                    currentItems[index].product.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text("נוסף על ידי ${currentUserList.name}"),
-                  trailing: Text(
-                    "$amount ${currentItems[index]
-                        .getUnitsText()}",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            );
+            return _getItemWidget(currentItems[index], overlay, currentColor, currentUserList);
           },
           itemCount: currentItems.length,
         );
