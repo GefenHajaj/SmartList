@@ -5,9 +5,8 @@ import 'package:smart_list_app/classes.dart';
 import 'dart:math';
 import 'package:smart_list_app/add_item_to_list.dart';
 import 'package:smart_list_app/change_item_properties.dart';
-import 'package:smart_list_app/super_mode_page.dart';
 import 'package:smart_list_app/list_settings_page.dart';
-
+import 'dart:async';
 
 class ListPage extends StatefulWidget {
   final User user;
@@ -32,14 +31,36 @@ class _ListPageState extends State<ListPage> {
   bool dataArrived;
   var _tapPosition;
 
+  Timer _timer;
+  int _refreshSeconds = 15;
+
   @override
   void initState() {
     super.initState();
     currentUser = widget.user;
     currentShoppingList = widget.shoppingList;
     dataArrived = widget.dataArrived;
+    _timer = new Timer.periodic(Duration(seconds: _refreshSeconds), (timer) {
+      updateList();
+    });
     if (!dataArrived)
       items = Api.getShoppingListItems(currentUser, currentShoppingList);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  /// Update data - every X seconds, query the API and get the updated list
+  void updateList() async {
+    if (dataArrived) {
+      var updatedItems = await Api.getShoppingListItems(currentUser, currentShoppingList);
+      setState(() {
+        currentShoppingList.items = updatedItems;
+      });
+    }
   }
 
   /// Save the location of press
@@ -106,16 +127,6 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
-
-
-  /// Go to buying mode
-  void goToSuperMode() {
-    Navigator.of(context).push(MaterialPageRoute<Null>(
-        builder: (BuildContext context) {
-          return SuperModePage(user: currentUser, shoppingList: currentShoppingList,);
-        }));
-  }
-
   /// Go to add item page
   void goToAddItemPage() {
     Navigator.of(context).push(MaterialPageRoute<Null>(
@@ -163,6 +174,206 @@ class _ListPageState extends State<ListPage> {
   void doSearch() {
     print("Searching");
     arrangeCurrentItems(searchWord);
+  }
+
+  bool _areThereBoughtItems() {
+    for (var item in currentShoppingList.items) {
+      if (item.isBought)
+        return true;
+    }
+    return false;
+  }
+
+  /// Cancel everything! Unbuy all the items.
+  void _cancelEverything() {
+    List<ShoppingListObject> currentItems = currentShoppingList.items;
+    setState(() {
+      for (ShoppingListObject item in currentItems) {
+        if (item.isBought) {
+          item.isBought = false;
+          Api.unbuyShoppingListItem(currentUser, currentShoppingList, item);
+        }
+      }
+    });
+  }
+
+  /// Delete all the items that are bought
+  void _deleteBought() {
+    List<ShoppingListObject> temp = new List<ShoppingListObject>();
+
+    // Add all the items that are still not bought to the temp list.
+    // Delete all items that were bought.
+    for (ShoppingListObject item in currentShoppingList.items) {
+      if (item.isBought) {
+        Api.deleteShoppingListItem(currentUser, currentShoppingList, item);
+      }
+      else {
+        temp.add(item);
+      }
+    }
+    setState(() {
+      // Assign the new updated list to the old one
+      currentShoppingList.items = temp;
+    });
+  }
+
+  /// Wipe the entire list - delete all the items.
+  void deleteEverything() {
+    // Delete all the items from the shopping list
+    if (currentShoppingList.items != null && currentShoppingList.items.isNotEmpty) {
+      Api.wipeShoppingList(currentUser, currentShoppingList);
+      setState(() {
+        currentShoppingList.items = new List<ShoppingListObject>();
+      });
+    }
+    Navigator.of(context).pop();
+  }
+
+  void _deleteEverythingAlert() {
+    if (currentShoppingList.items != null && currentShoppingList.items.isNotEmpty) {
+      showDialog(
+          context: context,
+          barrierDismissible: true,
+          builder: (_) =>
+              AlertDialog(
+                title: Text("למחוק את כל המוצרים ברשימה?",
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+                content: Text(
+                  "בטוחים שאתם רוצים למחוק את כל המוצרים ברשימה?",
+                  textDirection: TextDirection.rtl,
+                ),
+                actions: [
+                  FlatButton(
+                      onPressed: Navigator
+                          .of(context)
+                          .pop,
+                      child: Text(
+                        "לא",
+                        style: TextStyle(
+                          color: Colors.black,
+                          // fontWeight: FontWeight.bold
+                        ),
+                      )
+                  ),
+                  FlatButton(
+                      onPressed: deleteEverything,
+                      child: Text(
+                        "כן",
+                        style: TextStyle(
+                          color: Colors.black,
+                          // fontWeight: FontWeight.bold
+                        ),
+                      )
+                  ),
+                ],
+              )
+      );
+    }
+  }
+
+  /// Get the buttons that will appear at the bottom of the screen.
+  /// If there are no bought items, the button will just say "wipe list".
+  /// If there are bought items, there will also be a button that says "wipe
+  /// bought items"
+  Widget _getBottomButtons() {
+    bool areThereBoughtItems = _areThereBoughtItems();
+    List<StatelessWidget> _buttons = <StatelessWidget>[
+      Container(color: Colors.grey),
+      Container(
+        padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 0.0),
+        child: FlatButton(
+          color: Colors.white,
+          padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: areThereBoughtItems ? 0.0 : 75.0),
+          onPressed: _deleteEverythingAlert,
+          child: Text(areThereBoughtItems ? "נקה את\nכל הרשימה" : "נקה את כל הרשימה",
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontWeight: FontWeight.bold
+            ),
+          ),
+          shape: ContinuousRectangleBorder(side: BorderSide(
+              color: Colors.black54,
+              width: 3,
+              style: BorderStyle.solid
+          )),
+        ),
+      ),
+      Container(color: Colors.grey),
+    ];
+
+    if (_areThereBoughtItems()) {
+      _buttons = <StatelessWidget>[
+        Container(color: Colors.green),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 0.0),
+          child: FlatButton(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
+            onPressed: _cancelEverything,
+            child: Text("בטל סימוני נקנה",
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            shape: ContinuousRectangleBorder(side: BorderSide(
+                color: Colors.black54,
+                width: 3,
+                style: BorderStyle.solid
+            )),
+          ),
+        ),
+        Container(color: Colors.blue),
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 0.0),
+          child: FlatButton(
+            color: Colors.white,
+            padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
+            onPressed: _deleteBought,
+            child: Text("מחק מוצרים שנקנו",
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+            shape: ContinuousRectangleBorder(side: BorderSide(
+                color: Colors.black54,
+                width: 3,
+                style: BorderStyle.solid
+            )),
+          ),
+        ),
+      ] + _buttons;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      textDirection: TextDirection.rtl,
+      children: _buttons
+    );
+  }
+
+  void _buyOrUnbuyItem(ShoppingListObject item) {
+    if (item.isBought) {
+      Api.unbuyShoppingListItem(currentUser, currentShoppingList, item);
+      setState(() {
+        item.isBought = false;
+      });
+    }
+    else {
+      Api.buyShoppingListItem(currentUser, currentShoppingList, item);
+      setState(() {
+        item.isBought = true;
+      });
+    }
   }
 
   Widget _getAddFirstItemButton() {
@@ -214,7 +425,7 @@ class _ListPageState extends State<ListPage> {
               showPopUpMenu(item, overlay);
           },
           onTap: () {
-            // buyOrUnbuyItem(_currentItems[index]);
+            _buyOrUnbuyItem(item);
           },
           leading: CircleAvatar(
             child: Text(currentUserList.name[0]),
@@ -389,37 +600,9 @@ class _ListPageState extends State<ListPage> {
               ),
             ),
             Expanded(flex:6,child: Container(child: getItemsList())),
-            Expanded(flex:1,child: Container(height: MediaQuery.of(context).size.height, color: Colors.grey[300],
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Material(
-                    // elevation: 10.0,
-                      borderRadius: BorderRadius.circular(50.0),
-                      color: Colors.transparent,
-                      child: Container(
-                        height: 60.0,
-                        width: 250.0,
-                        decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(50.0)
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(50.0),
-                          onTap: goToSuperMode,
-                          child: Center(
-                            child: Text("מצב קניות",
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 24.0
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                  ),
-                ),
-              ),)),
+            Expanded(flex:1,child: Container(height: MediaQuery.of(context).size.height, color: Colors.blue[100],
+              child: _getBottomButtons(),
+            )),
             SizedBox(height: 60,)
           ],
         )
