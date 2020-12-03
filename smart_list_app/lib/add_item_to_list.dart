@@ -56,6 +56,8 @@ class _AddItemToListPageState extends State<AddItemToListPage> {
     _scrollControllerNumber = FixedExtentScrollController(initialItem: 1);
     _productName = widget.initialName != null ? widget.initialName : "";
     _autoFocus = widget.initialName != null && widget.initialName != "";
+    if (_autoFocus)
+      _buttonText = _enabledButtonText;
   }
 
   /// Add the item to the list and go back to list page
