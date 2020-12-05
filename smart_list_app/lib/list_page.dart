@@ -315,7 +315,7 @@ class _ListPageState extends State<ListPage> {
             color: Colors.white,
             padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
             onPressed: _cancelEverything,
-            child: Text("בטל סימוני נקנה",
+            child: Text("בטל\nסימוני נקנה",
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -336,7 +336,7 @@ class _ListPageState extends State<ListPage> {
             color: Colors.white,
             padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
             onPressed: _deleteBought,
-            child: Text("מחק מוצרים שנקנו",
+            child: Text("מחק\nמוצרים שנקנו",
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -464,7 +464,6 @@ class _ListPageState extends State<ListPage> {
               }
               currentItems = currentShoppingList.items;
               arrangeCurrentItems(searchWord);
-
               if (currentShoppingList.items.isEmpty) {
                 return _getAddFirstItemButton();
               }

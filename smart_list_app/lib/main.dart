@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_list_app/loading.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 
 void main() {
@@ -10,7 +11,9 @@ void main() {
     if (kReleaseMode)
       exit(1);
   };
-  runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
+      .then((value) => runApp(MyApp()));
 }
 
 class MyApp extends StatelessWidget {
