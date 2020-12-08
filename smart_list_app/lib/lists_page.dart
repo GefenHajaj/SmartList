@@ -130,7 +130,7 @@ class _ListsPageState extends State<ListsPage> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             content: Text(
-              "אתה יצרת את הרשימה ומנהל אותה, לכן לא תוכל לעזוב אותה.",
+              "אתה יצרת את הרשימה ומנהל אותה. לכן לא תוכל לעזוב אותה, אלא רק למחוק אותה בהגדרות הרשימה.",
               textDirection: TextDirection.rtl,
             ),
             actions: [
