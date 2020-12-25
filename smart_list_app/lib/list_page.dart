@@ -427,14 +427,19 @@ class _ListPageState extends State<ListPage> {
           onTap: () {
             _buyOrUnbuyItem(item);
           },
-          leading: CircleAvatar(
-            child: Text(currentUserList.name[0]),
-            backgroundColor: item.isBought ? Colors.black54 : currentColor,
+          // leading: CircleAvatar(
+          //   child: Text(currentUserList.name[0]),
+          //   backgroundColor: item.isBought ? Colors.black54 : currentColor,
+          // ),
+          leading: Icon(
+            item.isBought ? Icons.check_box_outlined : Icons.check_box_outline_blank,
+            size: 30,
           ),
           title: Text(
-            "${item.product.name}${item.isBought ? " - נקנה" : ""}",
+            "${item.product.name}",
             style: TextStyle(
               fontWeight: FontWeight.bold,
+              decoration: item.isBought ? TextDecoration.lineThrough : null
             ),
           ),
           subtitle: Text("נוסף על ידי ${currentUserList.name}"),

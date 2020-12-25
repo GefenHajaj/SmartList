@@ -169,7 +169,7 @@ class _SignUpPageState extends State<SignUpPage> {
           ),
           SizedBox(height: sizedBoxSize / 2),
           Text(
-            "אנא הכניסו כינוי/שם משתמש.\nשם זה יסייע לאחרים לזהות אתכם כשתצטרפו לרשימות",
+            "אנא הכניסו כינוי/שם משתמש.\nשם זה יסייע לאחרים לזהות אתכם כשתצטרפו לרשימות.",
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.center,
             style: TextStyle(
