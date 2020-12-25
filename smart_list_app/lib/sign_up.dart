@@ -17,9 +17,10 @@ class _SignUpPageState extends State<SignUpPage> {
   String normalButtonText = "הרשמה";
   String warningButtonText = "הרשמה";
 
-  Color buttonColor = Colors.green[200];
-  Color normalButtonColor = Colors.green[200];
-  Color warningButtonColor = Colors.green[200];
+  Color buttonColor = Colors.green[400];
+  Color normalButtonColor = Colors.green[400];
+  Color warningButtonColor = Colors.green[400];
+  Color disabledButtonColor = Colors.green[100];
   Color successButtonColor = Colors.green;
 
   bool isButtonDisabled = true;
@@ -82,19 +83,30 @@ class _SignUpPageState extends State<SignUpPage> {
     Widget page = SafeArea(
         child: SingleChildScrollView(
         child: Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
       child: Column(
         textDirection: TextDirection.rtl,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           Padding(
-            padding: EdgeInsets.all(30.0),
+            padding: EdgeInsets.fromLTRB(30.0, 30.0, 30.0, 15.0),
             child: Image.asset(
               logoPath,
             ),
           ),
-          SizedBox(height: sizedBoxSize),
+          Center(
+            child: Text(
+              "ברוכים הבאים\nל-Super List!",
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 36.0,
+                letterSpacing: 2.0,
+              ),
+            ),
+          ),
+          SizedBox(height: sizedBoxSize / 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             textDirection: TextDirection.rtl,
@@ -121,7 +133,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.fromLTRB(0.0, 15.0, 15.0, 15.0),
                         isDense: true,
-                        hintText: "יש להכניס שם משתמש",
+                        hintText: "הקלידו כאן...",
                         counterText: "",
                         border: new OutlineInputBorder(
                           borderRadius: const BorderRadius.all(
@@ -155,14 +167,26 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
             ],
           ),
+          SizedBox(height: sizedBoxSize / 2),
+          Text(
+            "אנא הכניסו כינוי/שם משתמש.\nשם זה יסייע לאחרים לזהות אתכם כשתצטרפו לרשימות",
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12.0,
+              letterSpacing: 2.0,
+            ),
+          ),
           SizedBox(height: sizedBoxSize),
           Center(
-            child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              FlatButton(
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: FlatButton(
                 padding: EdgeInsets.all(15.0),
                   onPressed: isButtonDisabled ? null : () {
                     trySignUp();
                   },
+                disabledColor: disabledButtonColor,
                   color: buttonColor,
                   child: Center(child: Text(buttonText,
                   textDirection: TextDirection.rtl,
@@ -176,7 +200,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     style: BorderStyle.solid
                 )),
               ),
-            ]),
+            ),
           )
         ],
       ),
