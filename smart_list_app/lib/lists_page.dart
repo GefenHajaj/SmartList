@@ -32,7 +32,9 @@ class _ListsPageState extends State<ListsPage> {
   Future data;
   var tapPosition = Offset(0.0, 0.0);
   BannerAd _bannerAd;
-  String _storeLink = "https://play.google.com/store/apps/details?id=com.smartlistapps.smart_list_app";
+  String _appleStoreLink = "https://apps.apple.com/us/app/super-list-easy-shopping/id1551309868";
+  String _googleStoreLink = "https://play.google.com/store/apps/details?id=com.smartlistapps.smart_list_app";
+  String _storeLink = "";
 
   @override
   void initState() {
@@ -42,6 +44,8 @@ class _ListsPageState extends State<ListsPage> {
       size: AdSize.banner,
     );
     _loadBannerAd();
+
+    _storeLink = "אייפון: $_appleStoreLink\nאנדרואיד: $_googleStoreLink";
 
     currentUser = widget.user;
     if (!widget.dataArrived) data = Api.getUserLists(currentUser);
@@ -61,8 +65,7 @@ class _ListsPageState extends State<ListsPage> {
 
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) async {
-    await SocialShare.shareOptions(
-        "היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}\n\nעוד אין לך Super List?\nהורד עכשיו: $_storeLink");
+    await SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}\n\nעוד אין לך Super List?\nהורד עכשיו:\n$_storeLink");
     _canPressShare = true;
   }
 
