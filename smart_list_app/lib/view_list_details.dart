@@ -4,6 +4,7 @@ import 'package:smart_list_app/classes.dart';
 import 'package:smart_list_app/list_page.dart';
 import 'package:smart_list_app/lists_page.dart';
 import 'package:social_share/social_share.dart';
+import 'dart:io';
 
 class ViewListDetailsPage extends StatefulWidget {
   final User user;
@@ -18,7 +19,9 @@ class ViewListDetailsPage extends StatefulWidget {
 class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
   User _currentUser;
   ShoppingList _currentShoppingList;
-  String _storeLink = "https://play.google.com/store/apps/details?id=com.smartlistapps.smart_list_app";
+  String _appleStoreLink = "https://apps.apple.com/us/app/super-list-easy-shopping/id1551309868";
+  String _googleStoreLink = "https://play.google.com/store/apps/details?id=com.smartlistapps.smart_list_app";
+  String _storeLink = "";
 
   @override
   void initState() {
@@ -26,11 +29,12 @@ class _ViewListDetailsPageState extends State<ViewListDetailsPage> {
     _currentUser = widget.user;
     _currentShoppingList = widget.newShoppingList;
     _currentUser.shoppingLists.add(_currentShoppingList);
+    _storeLink = "אייפון: $_appleStoreLink\nאנדרואיד: $_googleStoreLink";
   }
 
   /// Share a list using the default share options
   void shareList(ShoppingList shoppingList) {
-    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}\n\nעוד אין לך Super List?\nהורד עכשיו: $_storeLink");
+    SocialShare.shareOptions("היי! הצטרף לרשימה המשותפת באפליקציית Super List!\n\nשם הרשימה שלי הוא: ${shoppingList.name}\nמספר הרשימה שלי הוא: ${shoppingList.uniqueID}\n\nעוד אין לך Super List?\nהורד עכשיו:\n$_storeLink");
   }
 
   /// Go back to home screen.
