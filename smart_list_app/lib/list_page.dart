@@ -215,6 +215,8 @@ class _ListPageState extends State<ListPage> {
       // Assign the new updated list to the old one
       currentShoppingList.items = temp;
     });
+
+    Navigator.of(context).pop();
   }
 
   /// Wipe the entire list - delete all the items.
@@ -273,6 +275,51 @@ class _ListPageState extends State<ListPage> {
               )
       );
     }
+  }
+
+
+  void _deleteBoughAlert() {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) =>
+            AlertDialog(
+              title: Text("למחוק את כל המוצרים שנקנו?",
+                textDirection: TextDirection.rtl,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold
+                ),
+              ),
+              content: Text(
+                "בטוחים שאתם רוצים למחוק את כל המוצרים שנקנו?",
+                textDirection: TextDirection.rtl,
+              ),
+              actions: [
+                FlatButton(
+                    onPressed: Navigator
+                        .of(context)
+                        .pop,
+                    child: Text(
+                      "לא",
+                      style: TextStyle(
+                        color: Colors.black,
+                        // fontWeight: FontWeight.bold
+                      ),
+                    )
+                ),
+                FlatButton(
+                    onPressed: _deleteBought,
+                    child: Text(
+                      "כן",
+                      style: TextStyle(
+                        color: Colors.black,
+                        // fontWeight: FontWeight.bold
+                      ),
+                    )
+                ),
+              ],
+            )
+    );
   }
 
   /// Get the buttons that will appear at the bottom of the screen.
@@ -335,7 +382,7 @@ class _ListPageState extends State<ListPage> {
           child: FlatButton(
             color: Colors.white,
             padding: EdgeInsets.symmetric(vertical: 9.0, horizontal: 10.0),
-            onPressed: _deleteBought,
+            onPressed: _deleteBoughAlert,
             child: Text("מחק\nמוצרים שנקנו",
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.center,
