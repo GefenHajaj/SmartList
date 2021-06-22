@@ -1,6 +1,12 @@
 name: smart_list_app
 description: Smart List App
 
+#  Flutter 1.22.6 • channel stable • https://github.com/flutter/flutter.git
+#  Framework • revision 9b2d32b605 (5 months ago) • 2021-01-22 14:36:39 -0800
+#  Engine • revision 2f0af37152
+#  Tools • Dart 2.10.5
+#  Java Development Kit 11.0.11
+
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
