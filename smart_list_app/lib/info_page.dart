@@ -143,7 +143,7 @@ class _InfoPageState extends State<InfoPage> {
                 SizedBox(height: 100.0),
                 Center(
                   child: Text(
-                    "כל הזכויות שמורות ליניר ברט ©\n2020",
+                    "כל הזכויות שמורות ליניר ברט ©\n2021",
                     textAlign: TextAlign.center,
                   ),
                 ),
