@@ -1027,3 +1027,52 @@ class ListObjectViews:
                 "change_list_item(): should be a post request"
             )
 
+
+class ProductViews:
+    # POST views
+    @staticmethod
+    @csrf_exempt
+    def items_autocomplete(request):
+        """
+        Get 5 items that starts with the word given in the parameter.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+
+                # Get product we want to autocomplete
+                search_term = info['search_term']
+
+                # Perform the search
+                matched_products = Product.objects.filter(
+                    name__istartswith=search_term
+                )
+
+                # If less than 5, add more to the set
+                if matched_products.count() < 5:
+                    matched_products = matched_products | \
+                                       Product.objects.filter(
+                                           name__icontains=search_term)
+
+                # Get only 5 results:
+                matched_products = matched_products[:5]
+
+                return HttpResponse(json.dumps(
+                    [product.name for product in matched_products],
+                    ensure_ascii=False
+                ))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e,
+                                                                     traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "items_autocomplete(): should be a post request"
+            )

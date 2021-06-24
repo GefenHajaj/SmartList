@@ -7,6 +7,7 @@ import 'package:smart_list_app/add_item_to_list.dart';
 import 'package:smart_list_app/change_item_properties.dart';
 import 'package:smart_list_app/list_settings_page.dart';
 import 'dart:async';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class ListPage extends StatefulWidget {
   final User user;
@@ -145,22 +146,22 @@ class _ListPageState extends State<ListPage> {
 
   /// Arrange the current Items to show.
   /// Leave only items that match the
-  void arrangeCurrentItems(String search) {
-    List temp = currentItems;
-    currentItems = List();
-    // Add all items that match search:
-    for (var item in temp) {
-      if (item.product.name.contains(search) && !item.isBought) {
-        currentItems.add(item);
-      }
-    }
-    // Add all items that match search and were bought
-    for (var item in temp) {
-      if (item.product.name.contains(search) && item.isBought) {
-        currentItems.add(item);
-      }
-    }
-  }
+  // void arrangeCurrentItems(String search) {
+  //   List temp = currentItems;
+  //   currentItems = List();
+  //   // Add all items that match search:
+  //   for (var item in temp) {
+  //     if (item.product.name.contains(search) && !item.isBought) {
+  //       currentItems.add(item);
+  //     }
+  //   }
+  //   // Add all items that match search and were bought
+  //   for (var item in temp) {
+  //     if (item.product.name.contains(search) && item.isBought) {
+  //       currentItems.add(item);
+  //     }
+  //   }
+  // }
 
   void goToChangeItemProperties(ShoppingListObject item) {
     Navigator.of(context).push(MaterialPageRoute<Null>(
@@ -171,10 +172,10 @@ class _ListPageState extends State<ListPage> {
 
   /// Modify the items list according to the search and setState
   /// to show only items fitting to the search word.
-  void doSearch() {
-    print("Searching");
-    arrangeCurrentItems(searchWord);
-  }
+  // void doSearch() {
+  //   print("Searching");
+  //   arrangeCurrentItems(searchWord);
+  // }
 
   bool _areThereBoughtItems() {
     for (var item in currentShoppingList.items) {
@@ -515,7 +516,7 @@ class _ListPageState extends State<ListPage> {
                 currentShoppingList.items = shoppingListItems;
               }
               currentItems = currentShoppingList.items;
-              arrangeCurrentItems(searchWord);
+              // arrangeCurrentItems(searchWord);
               if (currentShoppingList.items.isEmpty) {
                 return _getAddFirstItemButton();
               }
@@ -560,7 +561,7 @@ class _ListPageState extends State<ListPage> {
     // If we already have the data:
     else {
       currentItems = currentShoppingList.items;
-      arrangeCurrentItems(searchWord);
+      // arrangeCurrentItems(searchWord);
 
       if (currentShoppingList.items.isEmpty) {
         print("Number of shopping list items: ${currentItems.length}");
@@ -599,6 +600,39 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  Widget _getAutoCompleteTextField() {
+    return TypeAheadField(
+      textFieldConfiguration: TextFieldConfiguration(
+        style: TextStyle(
+            fontSize: 18.0
+        ),
+        decoration: const InputDecoration(
+          labelText: 'מה לחפש או להוסיף?',
+        ),
+        textDirection: TextDirection.rtl,
+      ),
+      suggestionsCallback: (pattern) async {
+        return await Api.getAutoComplete(pattern);
+      },
+      itemBuilder: (context, suggestion) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: ListTile(
+            leading: Icon(Icons.shopping_basket),
+            title: Text(suggestion),
+          ),
+        );
+      },
+      onSuggestionSelected: (suggestion) {
+        searchWord = suggestion;
+        goToAddItemPage();
+      },
+      hideOnEmpty: true,
+      hideOnError: true,
+      hideSuggestionsOnKeyboardHide: true,
+    );
+  }
+
   /// Get the entire page
   Widget getPage() {
     return SafeArea(
@@ -630,21 +664,7 @@ class _ListPageState extends State<ListPage> {
                     flex: 12,
                     child: Directionality(
                       textDirection: TextDirection.rtl,
-                      child: TextFormField(
-                        style: TextStyle(
-                            fontSize: 18.0
-                        ),
-                        decoration: const InputDecoration(
-                          labelText: 'מה לחפש או להוסיף?',
-                        ),
-                        textDirection: TextDirection.rtl,
-                        onChanged: (input) {
-                          setState(() {
-                            searchWord = input;
-                            doSearch();
-                          });
-                        },
-                      ),
+                      child: _getAutoCompleteTextField(),
                     ),
                   ),
                 ],

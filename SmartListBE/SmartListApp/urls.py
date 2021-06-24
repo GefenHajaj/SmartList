@@ -115,4 +115,10 @@ urlpatterns = [
         views.ListObjectViews.change_list_item,
         name="change_list_item"
     ),
+
+    path(
+        'product/autocomplete/',
+        views.ProductViews.items_autocomplete,
+        name="items_autocomplete"
+    ),
 ]
