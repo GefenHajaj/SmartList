@@ -52,6 +52,8 @@ class ListObject(models.Model):
     user_added = models.ForeignKey(User, on_delete=models.CASCADE)
     is_bought = models.BooleanField(default=False)
     shopping_list = models.ForeignKey(ShoppingList, on_delete=models.CASCADE)
+    ordered_place = models.IntegerField(default=1)
+    creation_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return "List Object: {} ({})".format(self.product.name, self.pk)

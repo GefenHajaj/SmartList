@@ -111,6 +111,12 @@ urlpatterns = [
     ),
 
     path(
+        'item/changeorder/',
+        views.ShoppingListViews.change_item_order,
+        name="change_item_order"
+    ),
+
+    path(
         'item/change/',
         views.ListObjectViews.change_list_item,
         name="change_list_item"

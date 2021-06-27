@@ -299,7 +299,8 @@ class ShoppingListViews:
                         {"error": "not authorized"}
                     ))
 
-                all_objects = shopping_list.listobject_set.all()
+                all_objects = shopping_list.listobject_set.all().\
+                    order_by('creation_time', 'ordered_place')
                 objects_info = {}
                 for obj in all_objects:
                     objects_info[obj.pk] = {
@@ -310,6 +311,7 @@ class ShoppingListViews:
                         "user_added_name": obj.user_added.name,
                         "user_added_pk": obj.user_added.pk,
                         "is_bought": obj.is_bought,
+                        "order": obj.ordered_place
                     }
                 return HttpResponse(json.dumps(objects_info,
                                                ensure_ascii=False))
@@ -441,7 +443,6 @@ class ShoppingListViews:
                 "get_all_list_members(): should be a get request"
             )
 
-
     # POST views
     @staticmethod
     @csrf_exempt
@@ -483,13 +484,22 @@ class ShoppingListViews:
                 else:
                     product = Product.objects.get(name=product_name)
 
+                # Get the new order number of the product
+                all_items_in_list = shopping_list.listobject_set.all()
+                max_order_item = all_items_in_list.order_by('-ordered_place') \
+                    .first()
+                current_max_order = max_order_item.ordered_place if \
+                    max_order_item else 0
+                new_order_place = current_max_order + 1
+
                 # Create the new item we'll add to the list
                 list_item = ListObject(
                     product=product,
                     units=info['units'],
                     amount=decimal.Decimal(info['amount']),
                     user_added=user,
-                    shopping_list=shopping_list
+                    shopping_list=shopping_list,
+                    ordered_place=new_order_place
                 )
                 list_item.save()
                 return HttpResponse(json.dumps({
@@ -686,6 +696,98 @@ class ShoppingListViews:
         else:
             return HttpResponseBadRequest(
                 "mark_item_as_bought(): should be a post request"
+            )
+
+    @staticmethod
+    @csrf_exempt
+    def change_item_order(request):
+        """
+        Allow the user to change the order of the items by supplying the pks
+        of two products - the product that moved and the product that the
+        moved product took its place.
+        :param request: django.http.request
+        :return: django.http.HttpResponse
+        """
+        if request.method == 'POST':
+            try:
+                info = json.loads(request.body)
+
+                # Get the user who want to change places
+                user = get_object_or_404(User,
+                                         pk=info['user_pk'],
+                                         secret=info['user_secret'])
+
+                # Get the shopping list to change
+                shopping_list = get_object_or_404(ShoppingList,
+                                                  pk=info['list_pk'])
+
+                # Make sure user is part of list
+                all_pks = [u.pk for u in shopping_list.editors.all()]
+                all_pks.append(shopping_list.owner.pk)
+                if user.pk not in all_pks:
+                    return HttpResponseBadRequest(json.dumps(
+                        {"error": "not authorized"}
+                    ))
+
+                # Get needed items
+                all_items = shopping_list.listobject_set.all().order_by(
+                    'creation_time', 'ordered_place')
+                moved_item = get_object_or_404(shopping_list.listobject_set,
+                                               pk=info['moved_item_pk'])
+
+                if info['moving_item_pk']:
+                    moving_item = get_object_or_404(
+                        shopping_list.listobject_set,
+                        pk=info['moving_item_pk']
+                    )
+
+                    # Get the new order number for the moved item and change
+                    # the order number of all the items after the moving item.
+                    current_item = None
+                    new_order_num = 0
+                    add_to_order_num = 1
+                    for item in all_items:
+                        item_one_before_moved = current_item
+                        current_item = item
+                        if not new_order_num and current_item.pk == moving_item.pk:
+                            if item_one_before_moved:
+                                new_order_num = item_one_before_moved.\
+                                                    ordered_place + 1
+                            else:
+                                new_order_num = 1
+
+                        if new_order_num and current_item.pk != moved_item.pk:
+                            item.ordered_place = new_order_num + add_to_order_num
+                            item.save()
+                            add_to_order_num += 1
+                else:
+                    # Get the new order number of the product
+                    all_items_in_list = shopping_list.listobject_set.all()
+                    max_order_item = all_items_in_list.order_by(
+                        '-ordered_place') \
+                        .first()
+                    current_max_order = max_order_item.ordered_place if \
+                        max_order_item else 0
+                    new_order_num = current_max_order + 1
+
+                # Change the ordered_place of the moved item
+                moved_item.ordered_place = new_order_num
+                moved_item.save()
+
+                return HttpResponse(json.dumps({
+                    "success": "items moved"
+                }, ensure_ascii=False))
+            except KeyError:
+                return HttpResponseBadRequest(json.dumps(
+                    {"error": "not enough data supplied"}
+                ))
+            except Exception as e:
+                return HttpResponseServerError(json.dumps(
+                    {"error": "something went wrong.\n{}: {}".format(e, traceback.format_exc())}
+                ))
+        else:
+            return HttpResponseBadRequest(
+                "change_item_order(): should be a post request"
             )
 
     @staticmethod
