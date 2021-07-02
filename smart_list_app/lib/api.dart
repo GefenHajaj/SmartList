@@ -106,6 +106,7 @@ class Api {
             userAdded: new User(name: shoppingListItemData['user_added_name'],
                 pk: shoppingListItemData['user_added_pk']),
             isBought: shoppingListItemData['is_bought'],
+            order: shoppingListItemData['order']
           );
           shoppingListItems.add(newShoppingListItem);
         }
@@ -201,6 +202,7 @@ class Api {
     if (response.statusCode == 200) {
       newItem.product.pk = responseMap['product_pk'];
       newItem.pk = responseMap['pk'];
+      newItem.order = responseMap['order'];
     }
     else {
       return Error(errorStatement: responseMap['error']);
@@ -382,6 +384,28 @@ class Api {
     }
     else {
       return [];
+    }
+  }
+
+  static Future rearrangeList(User user, ShoppingList shoppingList, int movedItemPK, int movingItemPK) async {
+    var bodyDict = {
+      "user_pk": user.pk.toString(),
+      "user_secret": user.secret,
+      "list_pk": shoppingList.pk.toString(),
+      "moved_item_pk": movedItemPK.toString(),
+    };
+    if (movingItemPK != null)
+      bodyDict["moving_item_pk"] = movingItemPK.toString();
+    String body = json.encode(bodyDict);
+
+    final url = Uri.http(baseUrl, "smartlist/item/changeorder/");
+    final Response response = await post(url, body: body);
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    else {
+      return Error(errorStatement: json.decode(response.body)['error']);
     }
   }
 }

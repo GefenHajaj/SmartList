@@ -502,9 +502,15 @@ class ShoppingListViews:
                     ordered_place=new_order_place
                 )
                 list_item.save()
+
+                # Update the product's count
+                product.count += 1
+                product.save()
+
                 return HttpResponse(json.dumps({
                     "pk": list_item.pk,
                     "product_pk": list_item.product.pk,
+                    "order": list_item.ordered_place
                 }, ensure_ascii=False))
             except KeyError:
                 return HttpResponseBadRequest(json.dumps(
@@ -735,7 +741,7 @@ class ShoppingListViews:
                 moved_item = get_object_or_404(shopping_list.listobject_set,
                                                pk=info['moved_item_pk'])
 
-                if info['moving_item_pk']:
+                if 'moving_item_pk' in info:
                     moving_item = get_object_or_404(
                         shopping_list.listobject_set,
                         pk=info['moving_item_pk']
@@ -760,6 +766,7 @@ class ShoppingListViews:
                             item.ordered_place = new_order_num + add_to_order_num
                             item.save()
                             add_to_order_num += 1
+                # If moved item to bottom
                 else:
                     # Get the new order number of the product
                     all_items_in_list = shopping_list.listobject_set.all()
@@ -1150,19 +1157,23 @@ class ProductViews:
                 # Perform the search
                 matched_products = Product.objects.filter(
                     name__istartswith=search_term
-                )
+                ).order_by('-count')
+                products_names = [p.name for p in matched_products[:5]]
 
                 # If less than 5, add more to the set
-                if matched_products.count() < 5:
-                    matched_products = matched_products | \
-                                       Product.objects.filter(
-                                           name__icontains=search_term)
-
-                # Get only 5 results:
-                matched_products = matched_products[:5]
+                num_results = len(products_names)
+                if num_results < 5:
+                    more_results = Product.objects.filter(
+                                           name__icontains=search_term
+                                       ).order_by('-count')
+                    for r in more_results:
+                        if r.name not in products_names:
+                            products_names.append(r.name)
+                        if len(products_names) == 5:
+                            break
 
                 return HttpResponse(json.dumps(
-                    [product.name for product in matched_products],
+                    products_names,
                     ensure_ascii=False
                 ))
             except KeyError:

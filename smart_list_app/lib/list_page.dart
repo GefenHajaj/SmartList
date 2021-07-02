@@ -8,6 +8,7 @@ import 'package:smart_list_app/change_item_properties.dart';
 import 'package:smart_list_app/list_settings_page.dart';
 import 'dart:async';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class ListPage extends StatefulWidget {
   final User user;
@@ -30,7 +31,7 @@ class _ListPageState extends State<ListPage> {
   List colors = [Colors.red, Colors.green, Colors.blue, Colors.brown, Colors.pink[300], Colors.purple[400]];
   Random random = new Random();
   bool dataArrived;
-  var _tapPosition;
+  // var _tapPosition;
 
   Timer _timer;
   int _refreshSeconds = 15;
@@ -64,60 +65,59 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
-  /// Save the location of press
-  void _storePosition(TapDownDetails details) {
-    _tapPosition = details.globalPosition;
-  }
+  // /// Save the location of press
+  // void _storePosition(TapDownDetails details) {
+  //   _tapPosition = details.globalPosition;
+  // }
 
-  /// Show the pop up menu
-  void showPopUpMenu(ShoppingListObject item, var overlay) async {
-    await showMenu(
-        context: context,
-        position: RelativeRect.fromRect(
-            _tapPosition & Size(40, 40), // smaller rect, the touch area
-            Offset.zero & overlay.size // Bigger rect, the entire screen
-        ),
-        items: [
-          PopupMenuItem(
-            child: Center(
-              child: FlatButton(
-                child: Text(
-                  "ערוך מוצר",
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  goToChangeItemProperties(item);
-                },
-              ),
-            ),
-          ),
-          PopupMenuItem(
-            child: Center(
-              child: FlatButton(
-                child: Text(
-                  "מחק מוצר",
-                  textDirection: TextDirection.rtl,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-                onPressed: () {
-                  deleteItem(item);
-                },
-              ),
-            ),
-          ),
-        ]
-    );
-  }
+  // /// Show the pop up menu
+  // void showPopUpMenu(ShoppingListObject item, var overlay) async {
+  //   await showMenu(
+  //       context: context,
+  //       position: RelativeRect.fromRect(
+  //           _tapPosition & Size(40, 40), // smaller rect, the touch area
+  //           Offset.zero & overlay.size // Bigger rect, the entire screen
+  //       ),
+  //       items: [
+  //         PopupMenuItem(
+  //           child: Center(
+  //             child: FlatButton(
+  //               child: Text(
+  //                 "ערוך מוצר",
+  //                 textDirection: TextDirection.rtl,
+  //                 style: TextStyle(
+  //                     fontWeight: FontWeight.bold
+  //                 ),
+  //               ),
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //                 goToChangeItemProperties(item);
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //         PopupMenuItem(
+  //           child: Center(
+  //             child: FlatButton(
+  //               child: Text(
+  //                 "מחק מוצר",
+  //                 textDirection: TextDirection.rtl,
+  //                 style: TextStyle(
+  //                     fontWeight: FontWeight.bold
+  //                 ),
+  //               ),
+  //               onPressed: () {
+  //                 deleteItem(item);
+  //               },
+  //             ),
+  //           ),
+  //         ),
+  //       ]
+  //   );
+  // }
 
   /// Delete item from the list
   void deleteItem(ShoppingListObject item) async {
-    Navigator.of(context).pop();
     Future.delayed(
         Duration(milliseconds: 200), () {
       Api.deleteShoppingListItem(currentUser, currentShoppingList, item);
@@ -144,24 +144,24 @@ class _ListPageState extends State<ListPage> {
         }));
   }
 
-  /// Arrange the current Items to show.
-  /// Leave only items that match the
-  // void arrangeCurrentItems(String search) {
-  //   List temp = currentItems;
-  //   currentItems = List();
-  //   // Add all items that match search:
-  //   for (var item in temp) {
-  //     if (item.product.name.contains(search) && !item.isBought) {
-  //       currentItems.add(item);
-  //     }
-  //   }
-  //   // Add all items that match search and were bought
-  //   for (var item in temp) {
-  //     if (item.product.name.contains(search) && item.isBought) {
-  //       currentItems.add(item);
-  //     }
-  //   }
-  // }
+  /// Arrange the current Items to show the unbought items first.
+  void arrangeCurrentItems() {
+    List temp = currentItems;
+    temp.sort((a, b) => a.order.compareTo(b.order));
+    currentItems = List();
+    // Add all items that match search:
+    for (var item in temp) {
+      if (!item.isBought) {
+        currentItems.add(item);
+      }
+    }
+    // Add all items that were bought
+    for (var item in temp) {
+      if (item.isBought) {
+        currentItems.add(item);
+      }
+    }
+  }
 
   void goToChangeItemProperties(ShoppingListObject item) {
     Navigator.of(context).push(MaterialPageRoute<Null>(
@@ -424,6 +424,41 @@ class _ListPageState extends State<ListPage> {
     }
   }
 
+  void _updateItemsOrderLocally() {
+    currentItems = currentShoppingList.items;
+    for (int i = 0; i < currentItems.length; i++) {
+      currentItems[i].order = i + 1;
+    }
+  }
+
+  void _updateItemsOrder(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex)
+      newIndex--;
+
+    // Update items remotely
+    int movedItemIndex = oldIndex;
+    int movingItemIndex = newIndex;
+    if (newIndex > oldIndex) { // Moved down
+      if (newIndex + 1 < currentItems.length)
+        movingItemIndex++;
+      else
+        movingItemIndex = null;
+    }
+    Api.rearrangeList(
+        currentUser,
+        currentShoppingList,
+        currentItems[movedItemIndex].pk,
+        movingItemIndex != null ? currentItems[movingItemIndex].pk : null
+    );
+
+    // Update items locally
+    currentItems = currentShoppingList.items;
+    var movedItem = currentItems.removeAt(oldIndex);
+    currentItems.insert(newIndex, movedItem);
+    _updateItemsOrderLocally();
+    setState(() {});
+  }
+
   Widget _getAddFirstItemButton() {
     return Center(
         child: Wrap(
@@ -460,25 +495,23 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
-  Widget _getItemWidget(ShoppingListObject item, RenderBox overlay, Color currentColor, User currentUserList) {
+  Widget _getItemWidget(ShoppingListObject item, User currentUserList) {
     dynamic amount = item.amount;
     amount = amount.roundToDouble() == amount ? amount.round() : amount;
-    return GestureDetector(
-      onTapDown: _storePosition,
-      child: Directionality(
-        textDirection: TextDirection.rtl,
+    return Directionality(
+      key: ValueKey(item.pk),
+      textDirection: TextDirection.rtl,
+      child: Slidable(
+        actionPane: SlidableDrawerActionPane(),
+        actionExtentRatio: 1 / 5,
         child: ListTile(
-          onLongPress: () {
-            if (!item.isBought)
-              showPopUpMenu(item, overlay);
-          },
+          // onLongPress: () {
+          //   if (!item.isBought)
+          //     showPopUpMenu(item, overlay);
+          // },
           onTap: () {
             _buyOrUnbuyItem(item);
           },
-          // leading: CircleAvatar(
-          //   child: Text(currentUserList.name[0]),
-          //   backgroundColor: item.isBought ? Colors.black54 : currentColor,
-          // ),
           leading: Icon(
             item.isBought ? Icons.check_box_outlined : Icons.check_box_outline_blank,
             size: 30,
@@ -498,12 +531,26 @@ class _ListPageState extends State<ListPage> {
             ),
           ),
         ),
+        secondaryActions: [
+          IconSlideAction(
+            caption: 'ערוך',
+            color: Colors.blue,
+            icon: Icons.edit,
+            onTap: () => goToChangeItemProperties(item),
+          ),
+          IconSlideAction(
+            caption: 'מחק',
+            color: Colors.red,
+            icon: Icons.delete,
+            onTap: () => deleteItem(item),
+          ),
+        ],
+        closeOnScroll: true,
       ),
     );
   }
 
   Widget getItemsList() {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
     if (!dataArrived) {
       return FutureBuilder(
           future: items,
@@ -516,37 +563,17 @@ class _ListPageState extends State<ListPage> {
                 currentShoppingList.items = shoppingListItems;
               }
               currentItems = currentShoppingList.items;
-              // arrangeCurrentItems(searchWord);
+              arrangeCurrentItems();
               if (currentShoppingList.items.isEmpty) {
                 return _getAddFirstItemButton();
               }
               else {
-                return ListView.builder(
-                  // scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    // Determine color for item
-                    Color currentColor;
-                    User currentUserList;
-
-                    if (index < currentItems.length) {
-                      currentUserList = currentItems[index].userAdded;
-                      if (userColors.keys.contains(currentUserList.pk)) {
-                        currentColor = userColors[currentUserList.pk];
-                      }
-                      else {
-                        currentColor = colors[random.nextInt(colors.length)];
-                        while (userColors.values.contains(currentColor) &&
-                            userColors.length < colors.length) {
-                          currentColor = colors[random.nextInt(colors.length)];
-                        }
-                        userColors[currentUserList.pk] = currentColor;
-                      }
-                    }
-                    // Create the list:
-                    return _getItemWidget(currentItems[index], overlay, currentColor, currentUserList);
-                  },
-                  itemCount: currentItems.length,
+                return ReorderableListView(
+                    children: [
+                      for (final item in currentItems)
+                        _getItemWidget(item, item.userAdded)
+                    ],
+                    onReorder: _updateItemsOrder,
                 );
               }
             }
@@ -561,40 +588,19 @@ class _ListPageState extends State<ListPage> {
     // If we already have the data:
     else {
       currentItems = currentShoppingList.items;
-      // arrangeCurrentItems(searchWord);
+      arrangeCurrentItems();
 
       if (currentShoppingList.items.isEmpty) {
         print("Number of shopping list items: ${currentItems.length}");
         return _getAddFirstItemButton();
       }
       else {
-        return ListView.builder(
-          // scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, int index) {
-            // Determine color for item
-            Color currentColor;
-            User currentUserList;
-            if (index < currentItems.length) {
-              currentUserList = currentItems[index].userAdded;
-              if (userColors.keys.contains(currentUserList.pk)) {
-                currentColor = userColors[currentUserList.pk];
-              }
-              else {
-                currentColor = colors[random.nextInt(colors.length)];
-                while (userColors.values.contains(currentColor) &&
-                    userColors.length < colors.length) {
-                  currentColor = colors[random.nextInt(colors.length)];
-                }
-                userColors[currentUserList.pk] = currentColor;
-              }
-            }
-            dynamic amount = currentItems[index].amount;
-            amount = amount.roundToDouble() == amount ? amount.round() : amount;
-            // Create the list:
-            return _getItemWidget(currentItems[index], overlay, currentColor, currentUserList);
-          },
-          itemCount: currentItems.length,
+        return ReorderableListView(
+          children: [
+            for (final item in currentItems)
+              _getItemWidget(item, item.userAdded)
+          ],
+          onReorder: _updateItemsOrder,
         );
       }
     }
@@ -612,6 +618,7 @@ class _ListPageState extends State<ListPage> {
         textDirection: TextDirection.rtl,
       ),
       suggestionsCallback: (pattern) async {
+        searchWord = pattern;
         return await Api.getAutoComplete(pattern);
       },
       itemBuilder: (context, suggestion) {
@@ -630,6 +637,7 @@ class _ListPageState extends State<ListPage> {
       hideOnEmpty: true,
       hideOnError: true,
       hideSuggestionsOnKeyboardHide: true,
+      hideOnLoading: true,
     );
   }
 
