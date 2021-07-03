@@ -1160,7 +1160,7 @@ class ProductViews:
                 ).order_by('-count')
                 products_names = [p.name for p in matched_products[:5]]
 
-                # If less than 5, add more to the set
+                # If less than 5, add more to the list
                 num_results = len(products_names)
                 if num_results < 5:
                     more_results = Product.objects.filter(
