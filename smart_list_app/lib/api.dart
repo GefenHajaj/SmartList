@@ -112,12 +112,12 @@ class Api {
         }
       }
       else {
-        return [];
+        throw Error(errorStatement: "Server returned error");
       }
       return shoppingListItems;
     }
     catch (e){
-      return [];
+      throw Error(errorStatement: "Server returned error");
     }
   }
 
@@ -387,16 +387,17 @@ class Api {
     }
   }
 
-  static Future rearrangeList(User user, ShoppingList shoppingList, int movedItemPK, int movingItemPK) async {
-    var bodyDict = {
+  static Future rearrangeList(User user, ShoppingList shoppingList, List listItems) async {
+    List itemsOrder = [];
+    listItems.forEach((element) {
+      itemsOrder.add([element.pk, element.order]);
+    });
+    String body = json.encode({
       "user_pk": user.pk.toString(),
       "user_secret": user.secret,
       "list_pk": shoppingList.pk.toString(),
-      "moved_item_pk": movedItemPK.toString(),
-    };
-    if (movingItemPK != null)
-      bodyDict["moving_item_pk"] = movingItemPK.toString();
-    String body = json.encode(bodyDict);
+      "item_order": itemsOrder
+    });
 
     final url = Uri.http(baseUrl, "smartlist/item/changeorder/");
     final Response response = await post(url, body: body);

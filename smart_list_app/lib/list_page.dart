@@ -31,10 +31,12 @@ class _ListPageState extends State<ListPage> {
   List colors = [Colors.red, Colors.green, Colors.blue, Colors.brown, Colors.pink[300], Colors.purple[400]];
   Random random = new Random();
   bool dataArrived;
+  String _appBarTitle;
+  bool _shouldUpdateList = true;
   // var _tapPosition;
 
   Timer _timer;
-  int _refreshSeconds = 15;
+  int _refreshSeconds = 10;
 
   @override
   void initState() {
@@ -42,11 +44,14 @@ class _ListPageState extends State<ListPage> {
     currentUser = widget.user;
     currentShoppingList = widget.shoppingList;
     dataArrived = widget.dataArrived;
+    _appBarTitle = currentShoppingList.name;
     _timer = new Timer.periodic(Duration(seconds: _refreshSeconds), (timer) {
       updateList();
     });
     if (!dataArrived)
-      items = Api.getShoppingListItems(currentUser, currentShoppingList);
+      updateList();
+    else
+      _updateAppBarTitle();
   }
 
   @override
@@ -57,12 +62,28 @@ class _ListPageState extends State<ListPage> {
 
   /// Update data - every X seconds, query the API and get the updated list
   void updateList() async {
-    if (dataArrived) {
-      var updatedItems = await Api.getShoppingListItems(currentUser, currentShoppingList);
-      setState(() {
-        currentShoppingList.items = updatedItems;
-      });
+    if (_shouldUpdateList) {
+      try {
+        var updatedItems = await Api.getShoppingListItems(currentUser, currentShoppingList);
+        setState(() {
+          dataArrived = true;
+          currentShoppingList.items = updatedItems;
+        });
+        _updateAppBarTitle();
+      }
+      catch (e) {
+        print("Error getting items.");
+      }
     }
+  }
+
+  SlidableController _getSlidableController() {
+    return SlidableController(
+      onSlideAnimationChanged: (_) {},  // Just to make the other function work
+      onSlideIsOpenChanged: (bool isOpen) {
+        _shouldUpdateList = !isOpen;
+      }
+    );
   }
 
   // /// Save the location of press
@@ -124,6 +145,7 @@ class _ListPageState extends State<ListPage> {
       setState(() {
         currentShoppingList.items.remove(item);
       });
+      _updateAppBarTitle();
     }
     );
   }
@@ -228,6 +250,7 @@ class _ListPageState extends State<ListPage> {
       setState(() {
         currentShoppingList.items = new List<ShoppingListObject>();
       });
+      _updateAppBarTitle();
     }
     Navigator.of(context).pop();
   }
@@ -409,54 +432,49 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
-  void _buyOrUnbuyItem(ShoppingListObject item) {
+  void _buyOrUnbuyItem(ShoppingListObject item) async {
+    _shouldUpdateList = false;
     if (item.isBought) {
-      Api.unbuyShoppingListItem(currentUser, currentShoppingList, item);
+      await Api.unbuyShoppingListItem(currentUser, currentShoppingList, item);
       setState(() {
         item.isBought = false;
       });
     }
     else {
-      Api.buyShoppingListItem(currentUser, currentShoppingList, item);
+      await Api.buyShoppingListItem(currentUser, currentShoppingList, item);
       setState(() {
         item.isBought = true;
       });
     }
+    _updateAppBarTitle();
+    _shouldUpdateList = true;
   }
 
-  void _updateItemsOrderLocally() {
-    currentItems = currentShoppingList.items;
+  void _updateItemsOrderLocally(List currentItems) {
     for (int i = 0; i < currentItems.length; i++) {
       currentItems[i].order = i + 1;
     }
   }
 
-  void _updateItemsOrder(int oldIndex, int newIndex) {
+  void _updateItemsOrder(int oldIndex, int newIndex) async {
+    _shouldUpdateList = false;
     if (newIndex > oldIndex)
       newIndex--;
 
-    // Update items remotely
-    int movedItemIndex = oldIndex;
-    int movingItemIndex = newIndex;
-    if (newIndex > oldIndex) { // Moved down
-      if (newIndex + 1 < currentItems.length)
-        movingItemIndex++;
-      else
-        movingItemIndex = null;
-    }
-    Api.rearrangeList(
-        currentUser,
-        currentShoppingList,
-        currentItems[movedItemIndex].pk,
-        movingItemIndex != null ? currentItems[movingItemIndex].pk : null
-    );
-
     // Update items locally
-    currentItems = currentShoppingList.items;
+    // currentItems = currentShoppingList.items;
     var movedItem = currentItems.removeAt(oldIndex);
     currentItems.insert(newIndex, movedItem);
-    _updateItemsOrderLocally();
+    _updateItemsOrderLocally(currentItems);
     setState(() {});
+
+    // Update items remotely
+    await Api.rearrangeList(
+        currentUser,
+        currentShoppingList,
+        currentItems
+    );
+    _shouldUpdateList = true;
   }
 
   Widget _getAddFirstItemButton() {
@@ -504,6 +522,7 @@ class _ListPageState extends State<ListPage> {
       child: Slidable(
         actionPane: SlidableDrawerActionPane(),
         actionExtentRatio: 1 / 5,
+        controller: _getSlidableController(),
         child: ListTile(
           // onLongPress: () {
           //   if (!item.isBought)
@@ -552,42 +571,13 @@ class _ListPageState extends State<ListPage> {
 
   Widget getItemsList() {
     if (!dataArrived) {
-      return FutureBuilder(
-          future: items,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              // Arrange data
-              if (!dataArrived) {
-                dataArrived = true;
-                List shoppingListItems = snapshot.data;
-                currentShoppingList.items = shoppingListItems;
-              }
-              currentItems = currentShoppingList.items;
-              arrangeCurrentItems();
-              if (currentShoppingList.items.isEmpty) {
-                return _getAddFirstItemButton();
-              }
-              else {
-                return ReorderableListView(
-                    children: [
-                      for (final item in currentItems)
-                        _getItemWidget(item, item.userAdded)
-                    ],
-                    onReorder: _updateItemsOrder,
-                );
-              }
-            }
-            else {
-              return Center(child: SizedBox(
-                  width: 30, height: 30, child: CircularProgressIndicator()));
-            }
-          }
-      );
+      return Center(child: SizedBox(
+          width: 30, height: 30, child: CircularProgressIndicator()));
     }
-
     // If we already have the data:
     else {
       currentItems = currentShoppingList.items;
+      _updateAppBarTitle();
       arrangeCurrentItems();
 
       if (currentShoppingList.items.isEmpty) {
@@ -688,6 +678,17 @@ class _ListPageState extends State<ListPage> {
     );
   }
 
+  void _updateAppBarTitle() {
+    int countUnbought = 0;
+    currentShoppingList.items.forEach((element) {
+      if (!element.isBought)
+        countUnbought++;
+    });
+    setState(() {
+      _appBarTitle = "${currentShoppingList.name} (${countUnbought})";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -702,7 +703,7 @@ class _ListPageState extends State<ListPage> {
           onPressed: () { Navigator.of(context).pop(); },
         ),
         centerTitle: true,
-        title: Center(child: Text(currentShoppingList.name, textDirection: TextDirection.rtl,)),
+        title: Center(child: Text(_appBarTitle, textDirection: TextDirection.rtl,)),
         elevation: 0.0,
       ),
       body: getPage(),

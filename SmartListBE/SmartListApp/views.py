@@ -709,8 +709,7 @@ class ShoppingListViews:
     def change_item_order(request):
         """
         Allow the user to change the order of the items by supplying the pks
-        of two products - the product that moved and the product that the
-        moved product took its place.
+        of two products and the new order number.
         :param request: django.http.request
         :return: django.http.HttpResponse
         """
@@ -735,51 +734,14 @@ class ShoppingListViews:
                         {"error": "not authorized"}
                     ))
 
-                # Get needed items
-                all_items = shopping_list.listobject_set.all().order_by(
-                    'creation_time', 'ordered_place')
-                moved_item = get_object_or_404(shopping_list.listobject_set,
-                                               pk=info['moved_item_pk'])
-
-                if 'moving_item_pk' in info:
-                    moving_item = get_object_or_404(
-                        shopping_list.listobject_set,
-                        pk=info['moving_item_pk']
-                    )
-
-                    # Get the new order number for the moved item and change
-                    # the order number of all the items after the moving item.
-                    current_item = None
-                    new_order_num = 0
-                    add_to_order_num = 1
-                    for item in all_items:
-                        item_one_before_moved = current_item
-                        current_item = item
-                        if not new_order_num and current_item.pk == moving_item.pk:
-                            if item_one_before_moved:
-                                new_order_num = item_one_before_moved.\
-                                                    ordered_place + 1
-                            else:
-                                new_order_num = 1
-
-                        if new_order_num and current_item.pk != moved_item.pk:
-                            item.ordered_place = new_order_num + add_to_order_num
-                            item.save()
-                            add_to_order_num += 1
-                # If moved item to bottom
-                else:
-                    # Get the new order number of the product
-                    all_items_in_list = shopping_list.listobject_set.all()
-                    max_order_item = all_items_in_list.order_by(
-                        '-ordered_place') \
-                        .first()
-                    current_max_order = max_order_item.ordered_place if \
-                        max_order_item else 0
-                    new_order_num = current_max_order + 1
-
-                # Change the ordered_place of the moved item
-                moved_item.ordered_place = new_order_num
-                moved_item.save()
+                # Get the list of items pks and their new order
+                items_list = info['item_order']
+                for item_pk, item_order in items_list:
+                    # Update the item
+                    item = get_object_or_404(shopping_list.listobject_set,
+                                             pk=item_pk)
+                    item.ordered_place = item_order
+                    item.save()
 
                 return HttpResponse(json.dumps({
                     "success": "items moved"
