@@ -3,15 +3,19 @@ import 'package:smart_list_app/loading.dart';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:smart_list_app/notifications_manager.dart';
 
 
-void main() {
+Future <void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.dumpErrorToConsole(details);
     if (kReleaseMode)
       exit(1);
   };
   WidgetsFlutterBinding.ensureInitialized();
+  NotificationsManager nm = NotificationsManager();
+  await nm.init();
+  await nm.scheduleNotifications();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp])
       .then((value) => runApp(MyApp()));
 }
