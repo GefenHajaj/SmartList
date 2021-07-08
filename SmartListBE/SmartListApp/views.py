@@ -475,7 +475,7 @@ class ShoppingListViews:
                     ))
 
                 # Check that product exists - if not, create it
-                product_name = info['product_name']
+                product_name = info['product_name'].strip()
                 if not product_name:
                     raise KeyError
                 elif not Product.objects.filter(name=product_name).count():
