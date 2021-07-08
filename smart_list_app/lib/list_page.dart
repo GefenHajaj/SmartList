@@ -435,18 +435,19 @@ class _ListPageState extends State<ListPage> {
   void _buyOrUnbuyItem(ShoppingListObject item) async {
     _shouldUpdateList = false;
     if (item.isBought) {
-      await Api.unbuyShoppingListItem(currentUser, currentShoppingList, item);
       setState(() {
         item.isBought = false;
       });
+      _updateAppBarTitle();
+      await Api.unbuyShoppingListItem(currentUser, currentShoppingList, item);
     }
     else {
-      await Api.buyShoppingListItem(currentUser, currentShoppingList, item);
       setState(() {
         item.isBought = true;
       });
+      _updateAppBarTitle();
+      await Api.buyShoppingListItem(currentUser, currentShoppingList, item);
     }
-    _updateAppBarTitle();
     _shouldUpdateList = true;
   }
 
