@@ -33,6 +33,7 @@ class _ListPageState extends State<ListPage> {
   bool dataArrived;
   String _appBarTitle;
   bool _shouldUpdateList = true;
+  TextEditingController _searchTextBoxController = new TextEditingController();
   // var _tapPosition;
 
   Timer _timer;
@@ -483,7 +484,10 @@ class _ListPageState extends State<ListPage> {
         child: Wrap(
             children: [
               MaterialButton(
-                onPressed: goToAddItemPage,
+                onPressed: () {
+                  searchWord = _searchTextBoxController.text;
+                  goToAddItemPage();
+                },
                 color: Colors.green[100],
                 elevation: 5.0,
                 shape: RoundedRectangleBorder(
@@ -600,6 +604,7 @@ class _ListPageState extends State<ListPage> {
   Widget _getAutoCompleteTextField() {
     return TypeAheadField(
       textFieldConfiguration: TextFieldConfiguration(
+        controller: _searchTextBoxController,
         style: TextStyle(
             fontSize: 18.0
         ),
@@ -609,8 +614,8 @@ class _ListPageState extends State<ListPage> {
         textDirection: TextDirection.rtl,
       ),
       suggestionsCallback: (pattern) async {
-        searchWord = pattern;
-        return await Api.getAutoComplete(pattern);
+        // searchWord = pattern;
+        return pattern != "" ? await Api.getAutoComplete(pattern) : [];
       },
       itemBuilder: (context, suggestion) {
         return Directionality(
@@ -655,7 +660,10 @@ class _ListPageState extends State<ListPage> {
                             color: Colors.green,
                           ),
                         ),
-                        onPressed: goToAddItemPage,
+                        onPressed: () {
+                          searchWord = _searchTextBoxController.text;
+                          goToAddItemPage();
+                        },
                       )
                   ),
                   // Expanded(child: Container(), flex: 1,),
